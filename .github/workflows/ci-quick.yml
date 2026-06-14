@@ -94,7 +94,7 @@ jobs:
           scripts/run_theseus.sh \
             -b "$(pwd)/build" \
             -c TestCases/Euler/2D/IsentropicVortex/config.json \
-	    -o ./RegressionTests
+            -o ./RegressionTests
           cd RegressionTests/IsentropicVortex
           python ../../scripts/compare_viz.py ParaView/ParaView.pvd --fields Density --atol 5e-5 --rtol 2e-6
           cd -
@@ -107,7 +107,7 @@ jobs:
             -n "500" \
             -b "$(pwd)/build" \
             -c TestCases/Euler/2D/IsentropicVortex/config.json \
-	    -o ./RegressionTests
+            -o ./RegressionTests
           python scripts/compare_viz.py RegressionTests/IsentropicVortex/ParaView/Cycle000500/data.pvtu TestCases/GoldenData/IsentropicVortex/Cycle000500/data.pvtu --atol 1e-13 --rtol 1e-13
 
       - name: Example regression test (Gold standard - LidDrivenCavity)
@@ -118,7 +118,7 @@ jobs:
             -n "4000" \
             -b "$(pwd)/build" \
             -c TestCases/NavierStokes/2D/LidDrivenCavity/config.json \
-	    -o ./RegressionTests
+            -o ./RegressionTests
           python scripts/compare_viz.py RegressionTests/LidDrivenCavity/ParaView/Cycle004000/data.pvtu TestCases/GoldenData/LidDrivenCavity/Cycle004000/data.pvtu --atol 1e-12 --rtol 1e-12
 
       - name: Example regression test (Gold standard - TaylorGreenVortex2D)
@@ -129,7 +129,7 @@ jobs:
             -n "100" \
             -b "$(pwd)/build" \
             -c TestCases/NavierStokes/2D/TaylorGreenVortex/config.json \
-	    -o ./RegressionTests
+            -o ./RegressionTests
           python scripts/compare_viz.py RegressionTests/TaylorGreenVortex/ParaView/Cycle000100/data.pvtu TestCases/GoldenData/TaylorGreenVortex2D/Cycle000100/data.pvtu --atol 1e-13 --rtol 1e-13
 
       - name: Example regression test (Gold standard - ForwardFacingStep)
@@ -143,7 +143,7 @@ jobs:
             -n "100" \
             -b "$(pwd)/build" \
             -c TestCases/Euler/2D/ForwardFacingStep/config.json \
-	    -o ./RegressionTests
+            -o ./RegressionTests
           python scripts/compare_viz.py RegressionTests/ForwardFacingStep/ParaView/Cycle000100/data.pvtu TestCases/GoldenData/ForwardFacingStep/Cycle000100/data.pvtu --atol 1e-13 --rtol 1e-13
 
       - name: Unit tests
@@ -159,5 +159,5 @@ jobs:
             build/CMakeCache.txt
             build/**/*.log
             RegressionTests
-	    RunTheseus
+            RunTheseus
             RunTests
