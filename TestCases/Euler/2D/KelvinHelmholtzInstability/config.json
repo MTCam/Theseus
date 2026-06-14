@@ -1,0 +1,51 @@
+{
+    "compileTime":
+    {
+        "PARABOLIC": false,
+        "SUBCELL_FV_BLENDING": true,
+        "SUTHERLAND": false,
+        "USE_FILTER": false
+    },
+    "runTime":
+    {
+        "order": 3,
+        "dim" : 2, 
+        "num_equations": 4,
+
+        "precision": 15,
+
+        "visualize": true,
+        "paraview": true,
+        "visit": false,
+        "vis_steps": 100,
+        "output_file_path" : "../../TestCases/Euler/2D/KelvinHelmholtzInstability",
+
+        "nancheck": false,
+
+        "clock_simulation": true,
+        "variable_dt": true,
+        "cfl": 1.0,
+        "final_time": 2.0,
+
+        "R_gas": 287.05,
+        "gamma" : 1.4,
+
+        "ser_ref_levels": 5,
+
+        "mesh_file": "../../TestCases/Euler/2D/KelvinHelmholtzInstability/KelvinHelmholtzInstability.mesh",
+        "conditions":
+        {
+            "initial_conditions":
+            {
+                "signature": 1,
+                "params":
+                {
+                    "x1": 2.5
+                },
+                "function": "KelvinHelmholtzInstabilityIC"
+            }
+        },
+        "numerical_flux": "Chandrashekar",
+        "ode_solver": "RK3SSP"
+    }
+}
