@@ -1,0 +1,55 @@
+{
+    "compileTime":
+    {
+        "PARABOLIC": false,
+        "SUBCELL_FV_BLENDING": true,
+        "SUTHERLAND": false,
+        "USE_FILTER": false
+    },
+    "runTime":
+    {
+        "order": 3,
+        "dim" : 2, 
+        "num_equations": 4,
+
+        "precision": 15,
+
+        "visualize": true,
+        "paraview": true,
+        "visit": false,
+        "vis_steps": 1000,
+        "output_file_path" : "../../TestCases/Euler/2D/IsentropicVortex",
+
+        "nancheck": false,
+
+        "clock_simulation": true,
+        "variable_dt": true,
+        "cfl": 0.2,
+        "final_time": 2.0,
+
+        "R_gas": 287.05,
+        "gamma" : 1.4,
+
+        "ser_ref_levels": 3,
+
+        "mesh_file": "../../TestCases/Euler/2D/IsentropicVortex/IsentropicVortex.mesh",
+        "conditions":
+        {
+            "initial_conditions":
+            {
+                "signature": 5,
+                "params":
+                {
+                    "x1": 0.2,
+                    "x2": 0.5,
+                    "x3": 0.2,
+                    "x4": 287.05,
+                    "x5": 1.4
+                },
+                "function": "IsentropicVortexIC"
+            }
+        },
+        "numerical_flux": "HLL",
+        "ode_solver": "RK3SSP"
+    }
+}

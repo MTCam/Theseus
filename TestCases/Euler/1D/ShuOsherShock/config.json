@@ -1,0 +1,68 @@
+{
+    "compileTime":
+    {
+        "PARABOLIC": false,
+        "SUBCELL_FV_BLENDING": true,
+        "SUTHERLAND": false,
+        "USE_FILTER": false
+    },
+    "runTime":
+    {
+        "order": 3,
+        "dim" : 1, 
+        "num_equations": 3,
+
+        "precision": 15,
+
+        "visualize": true,
+        "paraview": true,
+        "visit": false,
+        "vis_steps": 100,
+        "output_file_path" : "../../TestCases/Euler/1D/ShuOsherShock",
+
+        "nancheck": false,
+
+        "clock_simulation": true,
+        "variable_dt": true,
+        "cfl": 1.0,
+        "final_time": 1.8,
+
+        "R_gas": 287.05,
+        "gamma" : 1.4,
+
+        "ser_ref_levels": 4,
+
+        "mesh_file": "../../TestCases/Euler/1D/ShuOsherShock/ShuOsherShock.mesh",
+        "conditions":
+        {
+            "initial_conditions":
+            {
+                "signature": 1,
+                "params":
+                {
+                    "x1": 1.4
+                },
+                "function": "ShuOsherShockIC"
+            },
+            "boundary_conditions":
+            {
+                "left":
+                {
+                    "type": "supersonic-inflow",
+                    "signature": 1,
+                    "params":
+                    {
+                        "x1": 1.4
+                    },
+                    "function": "ShuOsherShockLeftBC"
+                },
+                "right":
+                {
+                    "type": "supersonic-outflow"
+                }
+            }
+        },
+        "numerical_flux": "Chandrashekar",
+        "ode_solver": "RK3SSP"
+    }
+}
