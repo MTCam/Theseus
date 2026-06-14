@@ -1,0 +1,42 @@
+name: CI Nightly
+
+on:
+  schedule:
+    - cron: '0 7 * * *'
+  workflow_dispatch:
+
+jobs:
+  nightly-build-and-test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install toolchain
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y build-essential cmake
+
+      - name: Configure
+        run: |
+          if [ -f CMakeLists.txt ]; then
+            cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
+          else
+            echo "No CMakeLists.txt found yet; skipping configure step."
+          fi
+
+      - name: Build
+        run: |
+          if [ -f CMakeLists.txt ]; then
+            cmake --build build --parallel
+          else
+            echo "No CMakeLists.txt found yet; skipping build step."
+          fi
+
+      - name: Test
+        run: |
+          if [ -f CMakeLists.txt ]; then
+            ctest --test-dir build --output-on-failure
+          else
+            echo "No CMakeLists.txt found yet; skipping test step."
+          fi
