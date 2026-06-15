@@ -38,6 +38,7 @@ jobs:
         with:
           python-version: '3.11'
           cache: 'pip'
+          cache-dependency-path: ci-resources/requirements-ci.txt
 
       - name: Install Python deps
         run: |
@@ -48,10 +49,15 @@ jobs:
         run: |
           bash ./scripts/install-deps.sh
 
+      - name: Export TPL runtime library path
+        run: |
+          echo "LD_LIBRARY_PATH=${{ github.workspace }}/tpl/install/lib:${LD_LIBRARY_PATH}" >> $GITHUB_ENV
+
       - name: Show built dependency libs (debug)
         if: always()
         run: |
           cat tpl/logs/deps-build*.txt
+          find tpl/install -name 'libGKlib*' -o -name 'libmetis*' -o -name 'libmfem*'
 
       - name: Configure Theseus
         env:
@@ -68,10 +74,14 @@ jobs:
             -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE} \
             -DBUILD_TESTING=ON \
             -DCMAKE_PREFIX_PATH=${MFEM_DIR} \
+            -DCMAKE_BUILD_RPATH=${MFEM_DIR}/lib \
+            -DCMAKE_INSTALL_RPATH=${MFEM_DIR}/lib \
             -DSUBCELL_FV_BLENDING=ON -DNO_OPT=ON
 
       - name: Build Theseus
-        run: cmake --build build -- -k 0
+        run: |
+          cmake --build build -- -k 0
+          ldd build/theseus || true
 
       - name: Example smoke test (Euler, IsentropicVortex)
         run: |
@@ -94,7 +104,7 @@ jobs:
           scripts/run_theseus.sh \
             -b "$(pwd)/build" \
             -c TestCases/Euler/2D/IsentropicVortex/config.json \
-	    -o ./RegressionTests
+            -o ./RegressionTests
           cd RegressionTests/IsentropicVortex
           python ../../scripts/compare_viz.py ParaView/ParaView.pvd --fields Density --atol 5e-5 --rtol 2e-6
           cd -
@@ -107,7 +117,7 @@ jobs:
             -n "500" \
             -b "$(pwd)/build" \
             -c TestCases/Euler/2D/IsentropicVortex/config.json \
-	    -o ./RegressionTests
+            -o ./RegressionTests
           python scripts/compare_viz.py RegressionTests/IsentropicVortex/ParaView/Cycle000500/data.pvtu TestCases/GoldenData/IsentropicVortex/Cycle000500/data.pvtu --atol 1e-13 --rtol 1e-13
 
       - name: Example regression test (Gold standard - LidDrivenCavity)
@@ -118,7 +128,7 @@ jobs:
             -n "4000" \
             -b "$(pwd)/build" \
             -c TestCases/NavierStokes/2D/LidDrivenCavity/config.json \
-	    -o ./RegressionTests
+            -o ./RegressionTests
           python scripts/compare_viz.py RegressionTests/LidDrivenCavity/ParaView/Cycle004000/data.pvtu TestCases/GoldenData/LidDrivenCavity/Cycle004000/data.pvtu --atol 1e-12 --rtol 1e-12
 
       - name: Example regression test (Gold standard - TaylorGreenVortex2D)
@@ -129,7 +139,7 @@ jobs:
             -n "100" \
             -b "$(pwd)/build" \
             -c TestCases/NavierStokes/2D/TaylorGreenVortex/config.json \
-	    -o ./RegressionTests
+            -o ./RegressionTests
           python scripts/compare_viz.py RegressionTests/TaylorGreenVortex/ParaView/Cycle000100/data.pvtu TestCases/GoldenData/TaylorGreenVortex2D/Cycle000100/data.pvtu --atol 1e-13 --rtol 1e-13
 
       - name: Example regression test (Gold standard - ForwardFacingStep)
@@ -143,7 +153,7 @@ jobs:
             -n "100" \
             -b "$(pwd)/build" \
             -c TestCases/Euler/2D/ForwardFacingStep/config.json \
-	    -o ./RegressionTests
+            -o ./RegressionTests
           python scripts/compare_viz.py RegressionTests/ForwardFacingStep/ParaView/Cycle000100/data.pvtu TestCases/GoldenData/ForwardFacingStep/Cycle000100/data.pvtu --atol 1e-13 --rtol 1e-13
 
       - name: Unit tests
@@ -159,5 +169,5 @@ jobs:
             build/CMakeCache.txt
             build/**/*.log
             RegressionTests
-	    RunTheseus
+            RunTheseus
             RunTests

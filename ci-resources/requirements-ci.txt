@@ -1,0 +1,4 @@
+numpy>=1.26
+meshio>=5.3         # optional; our script falls back to pyvista if meshio fails
+pyvista>=0.43
+vtk>=9.3

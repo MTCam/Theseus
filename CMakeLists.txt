@@ -166,6 +166,7 @@ target_sources(theseus
     PRIVATE src/DGSEMNonlinearForm.cpp
 )
 
+message(STATUS "Adding ${CMAKE_PREFIX_PATH}/include/mfem to include path")
 target_include_directories(theseus
     PUBLIC ${CMAKE_SOURCE_DIR}/include
     PRIVATE ${CMAKE_PREFIX_PATH}/include/mfem
