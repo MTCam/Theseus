@@ -31,6 +31,7 @@ add_executable(gas_tests
 
 target_include_directories(gas_tests
     PRIVATE ${PROJECT_SOURCE_DIR}/include
+    PRIVATE ${CMAKE_PREFIX_PATH}/include/mfem
 )
 
 # Propagate SUTHERLAND compile definition to gas_tests if enabled
@@ -50,6 +51,7 @@ add_executable(state_tests
 
 target_include_directories(state_tests
     PRIVATE ${PROJECT_SOURCE_DIR}/include
+    PRIVATE ${CMAKE_PREFIX_PATH}/include/mfem
 )
 
 target_link_libraries(state_tests PRIVATE ${THESEUS_MFEM_TARGET})
@@ -64,6 +66,7 @@ add_executable(rflux_tests
 
 target_include_directories(rflux_tests
     PRIVATE ${PROJECT_SOURCE_DIR}/include
+    PRIVATE ${CMAKE_PREFIX_PATH}/include/mfem
 )
 
 target_link_libraries(rflux_tests PRIVATE ${THESEUS_MFEM_TARGET})
