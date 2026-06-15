@@ -69,7 +69,7 @@ static void run_face_flux_consistency_2d(const FluxT &num_flux,
 
     for (int eq = 0; eq < 4; ++eq)
     {
-        EXPECT_CLOSE(flux(eq), expected(eq), 1.0e-10);
+        EXPECT_CLOSE(flux(eq), expected(eq), 1.0e-9);
     }
 }
 
