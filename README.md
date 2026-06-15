@@ -86,4 +86,4 @@ scripts/run_theseus.sh -b "$(pwd)/build" -c TestCases/NavierStokes/2D/LidDrivenC
 
 ## AI Assistance Disclaimer
 
-AI-enhanced tools (including GitHub Copilot and ChatGPT) are used extensively in this project to support code review, testing, and documentation efforts. The numerics, mathematical formulation, and core intellectual content are original work by the human authors and the cited references. AI tools are used to improve project implementation and infrastructure, and all contributions are extensively reviewed by human authors.
+AI-enhanced tools (including GitHub Copilot and ChatGPT) are used extensively in this project to support code review, testing, and documentation efforts. Theseus numerics, mathematical formulation, and core intellectual content are original work by the human authors of the code and cited references. AI tools are used to improve project implementation and infrastructure, and all contributions are extensively reviewed by human authors.
