@@ -8,20 +8,6 @@ Theseus is a compressible flow solver developed at the Center for Hypersonics an
 
 Theseus formulation and numerics are based on the work of Hasanli [2], and its original implementation, [Prandtl](https://github.com/chess-uiuc/Prandtl) [4]. Theseus started out as a Prandtl modernization effort, but diverged substantially into a new codebase that is lighter and faster, while currently less feature-complete than Prandtl.
 
-## Documentation
-
-Most technical solver details are maintained in the Doxygen front page (`docs/mainpage.dox`).
-
-Published documentation (GitHub Pages): https://mtcam.github.io/Theseus/
-
-To generate docs locally (after installing `doxygen`):
-
-```bash
-doxygen Doxyfile
-```
-
-Generated HTML output defaults to `docs/doxygen/html/index.html`.
-
 ## Installation
 
 Theseus requires an MFEM installation, and can use whatever compute device MFEM was configured for (for example CPU, CUDA, or HIP).
