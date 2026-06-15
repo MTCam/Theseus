@@ -1,0 +1,94 @@
+/**
+ * \mainpage Theseus
+ *
+ * Theseus is a compressible flow solver developed at the Center for Hypersonics and Entry
+ * Systems Studies (CHESS) at the University of Illinois [1]. Its formulation and numerics are
+ * based on the work of Hasanli [2]. The code uses the MFEM finite element library [3], and
+ * targets modern and emerging HPC architectures for execution.
+ *
+ * Theseus started out as a refactor of Prandtl [4], the code produced by Hasanli, to enable GPU
+ * execution. The implementation diverged substantially into a new codebase that is lighter and
+ * faster, while currently less feature-complete than Prandtl.
+ *
+ * \section governing_equations Governing Equations
+ *
+ * Theseus solves the compressible Navier-Stokes equations, written in conservative form as
+ *
+ * \f[
+ * \frac{\partial \mathbf{Q}}{\partial t} + \nabla \cdot \left(\mathbf{F}^I - \mathbf{F}^V\right) = \mathbf{S}
+ * \f]
+ *
+ * For a single component fluid, the state vector \f$\mathbf{Q}\f$, inviscid flux
+ * \f$\mathbf{F}^I\f$, and viscous flux \f$\mathbf{F}^V\f$ are
+ *
+ * \f[
+ * \begin{bmatrix}
+ * \rho\\
+ * \rho E\\
+ * \rho \vec{v}
+ * \end{bmatrix},
+ * \quad
+ * \begin{bmatrix}
+ * \rho\vec{v}\\
+ * (\rho E + p)\vec{v}\\
+ * \rho(\vec{v} \otimes \vec{v}) + p\delta_{ij}
+ * \end{bmatrix},
+ * \quad
+ * \begin{bmatrix}
+ * 0\\
+ * (\boldsymbol{\tau} \cdot \vec{v} - \mathbf{q})\\
+ * \boldsymbol{\tau}
+ * \end{bmatrix}.
+ * \f]
+ *
+ * where \f$(\rho, \vec{v}, E)\f$ are the density, velocity, and total energy of the fluid,
+ * respectively. The viscous stress tensor \f$\boldsymbol{\tau}\f$ and heat flux \f$\mathbf{q}\f$
+ * are
+ *
+ * \f[
+ * \boldsymbol{\tau} = \mu\left[\left(\nabla\vec{v} + (\nabla\vec{v})^T\right) -
+ * \frac{2}{3}(\nabla \cdot \vec{v})\mathbf{I}\right], \quad
+ * \mathbf{q} = -\kappa\nabla T,
+ * \f]
+ *
+ * where \f$T\f$ is the fluid temperature and \f$(\mu, \kappa)\f$ are viscosity and thermal
+ * conductivity, respectively. Source terms are supported through \f$\mathbf{S}\f$.
+ *
+ * \section model_and_discretization Model and Discretization
+ *
+ * A modular gas model in Theseus implements the transport model and equation of state (EOS),
+ * providing transport and thermal properties as a function of the conserved state \f$\mathbf{Q}\f$.
+ * Theseus currently implements a single-component calorically perfect gas model and is being
+ * extended to local thermal equilibrium (LTE) mixtures.
+ *
+ * Theseus employs a nodal DGSEM formulation on tensor-product elements for spatial
+ * discretization [5, 6]. The solution strategy follows an entropy-conservative BR1 form [7], and
+ * uses explicit \f$s\f$-stage Runge-Kutta methods for time advancement.
+ *
+ * \section references References
+ *
+ * [1] Center for Hypersonics & Entry Systems Studies (CHESS), University of Illinois
+ * Urbana-Champaign. https://chess.grainger.illinois.edu/
+ *
+ * [2] Hasanli, F. (2025). \em Implementation of a High Order Discontinuous Galerkin Spectral
+ * Element Method for the Euler and Navier--Stokes Equations on Unstructured Grids. M.S. thesis,
+ * UIUC. https://hdl.handle.net/2142/129734
+ *
+ * [3] Anderson, R. et al. (2021). \em MFEM: A modular finite element methods library.
+ * Computers & Mathematics with Applications, 81, 42--74.
+ * https://doi.org/10.1016/j.camwa.2020.06.009
+ *
+ * [4] Prandtl repository: https://github.com/chess-uiuc/Prandtl
+ *
+ * [5] Fisher, T. C., & Carpenter, M. H. (2013). \em High-order entropy stable finite difference
+ * schemes for nonlinear conservation laws: Finite domains. Journal of Computational Physics, 252,
+ * 518--557.
+ *
+ * [6] Gassner, G. J., Winters, A. R., & Kopriva, D. A. (2016). \em Split form nodal
+ * discontinuous Galerkin schemes with summation-by-parts property for the compressible Euler
+ * equations. Journal of Computational Physics, 327, 39--66.
+ *
+ * [7] Gassner, G. J., Winters, A. R., Hindenlang, F. J., & Kopriva, D. A. (2018). \em The BR1
+ * scheme is stable for the compressible Navier--Stokes equations. Journal of Scientific
+ * Computing, 77(1), 154--200. https://doi.org/10.1007/s10915-018-0702-1
+ */
