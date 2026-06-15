@@ -49,10 +49,15 @@ jobs:
         run: |
           bash ./scripts/install-deps.sh
 
+      - name: Export TPL runtime library path
+        run: |
+          echo "LD_LIBRARY_PATH=${{ github.workspace }}/tpl/install/lib:${LD_LIBRARY_PATH}" >> $GITHUB_ENV
+
       - name: Show built dependency libs (debug)
         if: always()
         run: |
           cat tpl/logs/deps-build*.txt
+          find tpl/install -name 'libGKlib*' -o -name 'libmetis*' -o -name 'libmfem*'
 
       - name: Configure Theseus
         env:
@@ -69,10 +74,14 @@ jobs:
             -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE} \
             -DBUILD_TESTING=ON \
             -DCMAKE_PREFIX_PATH=${MFEM_DIR} \
+            -DCMAKE_BUILD_RPATH=${MFEM_DIR}/lib \
+            -DCMAKE_INSTALL_RPATH=${MFEM_DIR}/lib \
             -DSUBCELL_FV_BLENDING=ON -DNO_OPT=ON
 
       - name: Build Theseus
-        run: cmake --build build -- -k 0
+        run: |
+	  cmake --build build -- -k 0
+	  ldd build/theseus || true
 
       - name: Example smoke test (Euler, IsentropicVortex)
         run: |
