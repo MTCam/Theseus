@@ -25,7 +25,7 @@ METIS_REF="${METIS_REF:-master}"
 HYPRE_REPO="${HYPRE_REPO:-https://github.com/hypre-space/hypre.git}"
 HYPRE_REF="${HYPRE_REF:-master}"
 
-MFEM_REPO="${MFEM_REPO:-git@github.com:mfem/mfem.git}"
+MFEM_REPO="${MFEM_REPO:-https://github.com/mfem/mfem.git}"
 MFEM_REF="${MFEM_REF:-master}"
 
 mkdir -p "$SRC_DIR" "$BUILD_DIR" "$PREFIX" "$LOG_DIR"
