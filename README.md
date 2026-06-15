@@ -62,7 +62,7 @@ make
 make test
 ```
 
-## Quick/smoke test blurb
+## Quick smoke tests
 
 `ci-quick.yml` runs:
 
