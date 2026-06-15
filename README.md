@@ -4,16 +4,15 @@
 [![CI Nightly](https://github.com/MTCam/Theseus/actions/workflows/ci-nightly.yml/badge.svg)](https://github.com/MTCam/Theseus/actions/workflows/ci-nightly.yml)
 [![Doxygen Docs](https://github.com/MTCam/Theseus/actions/workflows/doxygen.yml/badge.svg)](https://github.com/MTCam/Theseus/actions/workflows/doxygen.yml)
 
-Theseus is a compressible flow solver developed at the Center for Hypersonics and Entry Systems Studies (CHESS) at the University of Illinois [1]. Its formulation and numerics are based on the work of Hasanli [2], and the code uses the MFEM finite element library [3], targeting modern and emerging HPC architectures. Theseus started out as a refactor of [Prandtl](https://github.com/chess-uiuc/Prandtl) [4], the code produced by Hasanli, to enable GPU execution. The implementation diverged substantially into a new codebase that is lighter and faster, while currently less feature-complete than Prandtl.
+Theseus is a compressible flow solver developed at the Center for Hypersonics and Entry Systems Studies (CHESS) at the University of Illinois [1]. It uses the MFEM finite element library [3], and targets modern and emerging HPC architectures.
+
+Theseus formulation and numerics are based on the work of Hasanli [2], and its original implementation, [Prandtl](https://github.com/chess-uiuc/Prandtl) [4]. Theseus started out as a Prandtl modernization effort, but diverged substantially into a new codebase that is lighter and faster, while currently less feature-complete than Prandtl.
 
 ## Documentation
 
 Most technical solver details are maintained in the Doxygen front page (`docs/mainpage.dox`).
 
-Doxygen infrastructure includes:
-
-- `Doxyfile` for local documentation generation
-- `.github/workflows/doxygen.yml` for CI validation and documentation artifact publishing
+Published documentation (GitHub Pages): https://mtcam.github.io/Theseus/
 
 To generate docs locally (after installing `doxygen`):
 
@@ -22,6 +21,61 @@ doxygen Doxyfile
 ```
 
 Generated HTML output defaults to `docs/doxygen/html/index.html`.
+
+## Installation
+
+Theseus requires an MFEM installation, and can use whatever compute device MFEM was configured for (for example CPU, CUDA, or HIP).
+
+You can use an existing MFEM installation, or install dependencies with:
+
+```bash
+bash scripts/install-deps.sh
+```
+
+Useful `install-deps.sh` options:
+
+- `JOBS` (default `4`): parallel build jobs
+- `DEVICE` (default `cpu`): set to `cpu`, `cuda`, or `hip`
+- `PREFIX` (default `./tpl/install`): install location used as `CMAKE_PREFIX_PATH`
+- `CUDA_ARCH` (default `75`): CUDA arch used when `DEVICE=cuda`
+- `HIP_ARCH` (optional): HIP arch used when `DEVICE=hip`
+
+Examples:
+
+```bash
+# CPU build dependencies
+JOBS=8 DEVICE=cpu bash scripts/install-deps.sh
+
+# CUDA dependencies
+JOBS=8 DEVICE=cuda CUDA_ARCH=80 bash scripts/install-deps.sh
+```
+
+## Building Theseus
+
+```bash
+export CC=mpicc
+export CXX=mpicxx
+mkdir -p build
+cd build
+cmake ../ -DCMAKE_PREFIX_PATH=/path/to/installation/of/mfem [-DENABLE_CUDA=YES]
+make
+make test
+```
+
+## Quick/smoke test blurb
+
+`ci-quick.yml` runs:
+
+- direct smoke runs using `scripts/run_theseus.sh`
+- regression checks using `scripts/compare_viz.py`
+- unit tests via `ctest`
+
+Two quick local smoke examples:
+
+```bash
+scripts/run_theseus.sh -b "$(pwd)/build" -c TestCases/Euler/2D/IsentropicVortex/config.json -t "0.002" -n 100
+scripts/run_theseus.sh -b "$(pwd)/build" -c TestCases/NavierStokes/2D/LidDrivenCavity/config.json -t "0.0001" -n 100
+```
 
 ## References
 
