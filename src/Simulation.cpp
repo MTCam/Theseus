@@ -344,6 +344,26 @@ namespace Theseus
     int points_per_element = std::pow(order+1, dim);
     std::int64_t num_elements = ndofscalar / points_per_element;
     MPI_Allreduce(MPI_IN_PLACE, &num_elements, 1, MPI_LONG_LONG, MPI_SUM, pmesh->GetComm());
+    if(debug_simulation && numProcs > 1){
+      for(int irank = 0;irank < numProcs;irank++){
+       if(myRank == irank){
+         std::cout << "Rank(" << myRank << ") Number of elements: "
+                   << num_elements << std::endl;
+       }
+       MPI_Barrier(pmesh->GetComm());
+      }
+    }
+    if(numProcs > 1){
+      std::int64_t max_nel = num_elements;
+      std::int64_t  min_nel = num_elements;
+      MPI_Allreduce(MPI_IN_PLACE, &max_nel, 1, MPI_LONG_LONG, MPI_MAX, pmesh->GetComm());
+      MPI_Allreduce(MPI_IN_PLACE, &min_nel, 1, MPI_LONG_LONG, MPI_MIN, pmesh->GetComm());
+      if(myRank == 0){
+       std::cout << "Partition NumElements (min, max) = (" << min_nel << ", " << max_nel
+                 << ")" << std::endl;
+      }
+    }
+    MPI_Allreduce(MPI_IN_PLACE, &num_elements, 1, MPI_LONG_LONG, MPI_SUM, pmesh->GetComm());
 
     if(myRank == 0 && debug_simulation){
       std::cout << "Initial exchanges complete." << std::endl;

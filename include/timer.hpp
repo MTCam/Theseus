@@ -1,6 +1,7 @@
 #pragma once
 #include <chrono>
 #include <cstdio>
+#include <mpi.h>
 
 namespace Theseus
 {
@@ -15,8 +16,28 @@ namespace Theseus
     ~ScopedTimer()
     {
       auto end = clock::now();
-      double ms = std::chrono::duration<double, std::milli>(end - start_).count();
-      std::printf("[TIMER] %s : %.6f ms\n", name_, ms);
+      double local_ms = std::chrono::duration<double, std::milli>(end - start_).count();
+      double global_ms = local_ms;
+      int rank = 0;
+      int nranks = 1;
+      MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+      MPI_Comm_size(MPI_COMM_WORLD, &nranks);
+#ifdef TIMER_BARRIER
+      MPI_Barrier(MPI_COMM_WORLD);
+      end = clock::now();
+      global_ms = std::chrono::duration<double, std::milli>(end - start_).count();
+#endif
+#ifdef TIMER_OUTPUT_ALLRANKS
+      if(nranks > 1 && rank > 0)
+	std::printf("[TIMER(%d)] %s : %.6f ms\n", rank, name_, local_ms);
+#endif
+      if(rank == 0 ){
+	std::printf("[TIMER(%d)] %s : %.6f ms\n", rank, name_, local_ms);
+#ifdef TIMER_BARRIER
+	if(nranks > 1)
+	  std::printf("[TIMER(all)] %s : %.6f ms\n", name_, global_ms);
+#endif
+      }
     }
 #else
     explicit ScopedTimer(const char *name)

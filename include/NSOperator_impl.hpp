@@ -258,7 +258,7 @@ namespace Theseus
   void NSOperator<PhysicsT>::GradOperator_BoundaryFaces(const mfem::Vector &pu,
                                                         std::vector<mfem::Vector *> &p_grad_u) const
   {
-    Theseus::ScopedTimer timer("GradOperator_BoundaryFaces_Device");
+    Theseus::ScopedTimer timer("GradOperator_BoundaryFaces");
 
     auto dc = device_cache;
     const int dim = dc.dim;
@@ -270,6 +270,10 @@ namespace Theseus
     const int norm_size = nfp * dim;
     const int npoints_bnd = nfaces_restr * nfp;
     const int psize = pu.Size();
+
+    if(restr_size == 0){
+      return;
+    }
 
     mfem::Vector &u_faces(operator_cache.uBnd);
     if(u_faces.Size() != restr_size){
@@ -374,7 +378,7 @@ namespace Theseus
   void NSOperator<PhysicsT>::GradOperator_InteriorFaces(const mfem::Vector &pu,
                                                         std::vector<mfem::Vector *> &p_grad_u) const
   {
-    Theseus::ScopedTimer timer("GradOperator_InteriorFaces_Device");
+    Theseus::ScopedTimer timer("GradOperator_InteriorFaces");
 
     auto dc = device_cache;
     const int dim = dc.dim;
@@ -467,7 +471,7 @@ namespace Theseus
   void NSOperator<PhysicsT>::GradOperator(const mfem::Vector &u,
                                           std::vector<mfem::Vector *> &grad_u) const
   {
-    Theseus::ScopedTimer timer("GradOperator_Device");
+    Theseus::ScopedTimer timer("GradOperator");
     const int dim = operator_cache.dim;
     const mfem::Vector &pu = this->Prolongate(u);
     std::vector<mfem::Vector *> p_grad_(dim);
@@ -650,6 +654,10 @@ namespace Theseus
     const int norm_size = nfp * dc.dim;
     const int npoints_bnd = nfaces_restr * nfp;
     const int psize = pdudt.Size();
+
+    if(restr_size == 0){
+      return 0.0;
+    }
 
     mfem::Vector &rhs_faces(operator_cache.rhsBnd);
     mfem::Vector &faces_dudt(operator_cache.dudtBnd);
