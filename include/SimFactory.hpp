@@ -1,0 +1,30 @@
+#pragma once
+#include "mfem.hpp"
+#include "json.hpp"
+#include "PerssonPeraireIndicator.hpp"
+#include "RHSOperator.hpp"
+
+namespace Theseus
+{
+
+  template <typename GasT, typename InvFluxT>
+  struct PhysicsTraits
+  {
+    using GasModel = GasT;
+    using InviscidFlux = InvFluxT;
+  };
+
+  std::unique_ptr<Theseus::RHSOperatorBase>
+  MakeRHSOperator(const nlohmann::json& runtime,
+		  std::shared_ptr<mfem::ParFiniteElementSpace> vfes,
+		  std::shared_ptr<mfem::ParFiniteElementSpace> fes0,
+		  std::shared_ptr<mfem::ParMesh> pmesh,
+		  std::shared_ptr<mfem::ParGridFunction> eta,
+		  std::shared_ptr<mfem::ParGridFunction> alpha,
+		  std::vector<std::shared_ptr<mfem::ParGridFunction> > &grad_u,
+		  std::shared_ptr<Prandtl::Indicator> indicator,
+		  std::shared_ptr<mfem::ParGridFunction> r_gf,
+		  mfem::real_t alpha_max);
+}
+
+#include "SimFactory_impl.hpp"

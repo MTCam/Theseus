@@ -1,7 +1,6 @@
 #pragma once
 
 #include "mfem.hpp"
-//#include "NumericalFlux.hpp"
 #include "NavierStokesFlux.hpp"
 #include "theseus_kernels.hpp"
 

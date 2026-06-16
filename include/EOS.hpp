@@ -7,9 +7,9 @@
 namespace Theseus
 {
 
-// ============================================================================
-// EOS: Ideal single-species gas using PhysicsConstants
-// ============================================================================
+  // ============================================================================
+  // EOS: Ideal single-species gas using PhysicsConstants
+  // ============================================================================
   struct IdealSingleGasEOS
   {
     // ---- helpers on conservative state --------------------------------------
@@ -26,7 +26,7 @@ namespace Theseus
     inline real_t density(const PhysicsConstants &phys, const StateLayout &L,
                           const StateView &S) const
     {
-        return S.mass(L); // this is "rho" (mass density)
+      return S.mass(L); // this is "rho" (mass density)
     }
 
     template<typename StateView>
@@ -34,7 +34,7 @@ namespace Theseus
     inline real_t rhoE(const PhysicsConstants &phys, const StateLayout &L,
                        const StateView &S) const
     {
-        return S.energy(L);
+      return S.energy(L);
     }
 
     template<typename StateView>
@@ -42,14 +42,14 @@ namespace Theseus
     inline real_t momentum_sq(const PhysicsConstants &phys, const StateLayout &L,
                               const StateView &S) const
     {
-        const int dim = L.dim;   // uses state layout
-        real_t m2 = 0;
-        for (int d = 0; d < dim; ++d)
+      const int dim = L.dim;   // uses state layout
+      real_t m2 = 0;
+      for (int d = 0; d < dim; ++d)
         {
           const real_t m = S.momentum(L,d);
           m2 += m * m;
         }
-        return m2;
+      return m2;
     }
 
     template<typename StateView>
@@ -77,7 +77,7 @@ namespace Theseus
     inline real_t internal_energy_from_pressure(const PhysicsConstants &phys, const StateLayout &L,
                                                 const StateView &S, real_t pressure) const
     {
-        // rho*e = rho*E - 0.5*rho*|u|^2
+      // rho*e = rho*E - 0.5*rho*|u|^2
       return pressure / (phys.gamma - 1.0);
     }
 
@@ -86,7 +86,7 @@ namespace Theseus
     inline real_t specific_internal_energy(const PhysicsConstants &phys, const StateLayout &L,
                                            const StateView &S) const
     {
-        // e = (rho*e) / rho
+      // e = (rho*e) / rho
       const real_t rho  = density(phys, L, S);
       const real_t rhoe = internal_energy_density(phys, L, S);
       return rhoe / rho;
@@ -156,7 +156,7 @@ namespace Theseus
     inline real_t cp(const PhysicsConstants &phys, const StateLayout &L,
                      const StateView & /*S*/) const
     {
-        return phys.cp;
+      return phys.cp;
     }
 
     template<typename StateView>

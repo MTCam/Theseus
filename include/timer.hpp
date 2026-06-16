@@ -1,4 +1,3 @@
-// timer.hpp
 #pragma once
 #include <chrono>
 #include <cstdio>

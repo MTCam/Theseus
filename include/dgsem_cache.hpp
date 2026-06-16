@@ -3,8 +3,6 @@
 #include "mfem.hpp"
 #include "GasModel.hpp"
 #include "bc_cache_utilities.hpp"
-#include "ActivePhysics.hpp"
-//#include "LaxFriedrichsFlux.hpp"
 
 namespace Theseus
 {
@@ -22,7 +20,7 @@ namespace Theseus
 
   template<typename PhysicsT>
   struct DGSEMOperatorCacheT {
-    using ActiveGasModel = typename PhysicsT::GasModel;
+    using OperatorGasModel = typename PhysicsT::GasModel;
     using InviscidFlux = typename PhysicsT::InviscidFlux;
     // constants needed by kernels
     int p = 0;
@@ -104,12 +102,8 @@ namespace Theseus
     mutable mfem::Vector elWaveSpeed; // size nelements
     mutable mfem::Vector ifWaveSpeed; // size ninterior faces
     mutable mfem::Vector bndWaveSpeed; // size nbnd faces
-    ActiveGasModel gas;
+    OperatorGasModel gas;
     InviscidFlux iflux;
-
-    //ActivePhysics::InviscidFlux iflux;
-    // Theseus::ChandrashekarFlux::InviscidFlux iflux;
-    //Theseus::LaxFriedrichsFlux::InviscidFlux iflux;
 
 #ifdef SUBCELL_FV_BLENDING
     mfem::Vector subcellMetricXi;
@@ -167,6 +161,7 @@ namespace Theseus
     const real_t *nor_d = nullptr;
     const real_t *fw_minus_d = nullptr;
     const real_t *fw_plus_d = nullptr;
+
     // Boundary faces
     const real_t *bnd_nor_d = nullptr;
     const real_t *bnd_wt_d = nullptr;
@@ -183,10 +178,6 @@ namespace Theseus
     real_t *bndWaveSpeed_d = nullptr; 
     Gas gas;
     InviscidFlux iflux;
-    // IdealGasModel gas;
-    // ActivePhysics::InviscidFlux iflux;
-    // Theseus::ChandrashekarFlux::InviscidFlux iflux;
-    // Theseus::LaxFriedrichsFlux::InviscidFlux iflux;
 
 #ifdef SUBCELL_FV_BLENDING
     const real_t *subcell_metric_xi_d = nullptr;
@@ -205,6 +196,4 @@ namespace Theseus
     }
   };
 
-  using DGSEMOperatorCache = DGSEMOperatorCacheT<ActivePhysics>;
-  using DGSEMDeviceCache = DGSEMDeviceCacheT<ActivePhysics>;
 }

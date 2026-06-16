@@ -1,7 +1,6 @@
 #pragma once
 
 #include "DGSEMIntegrator.hpp"
-#include "DGSEMNonlinearForm.hpp"
 #include "ModalBasis.hpp"
 #include "Indicator.hpp"
 #include "BasicOperations.hpp"
@@ -86,7 +85,7 @@ namespace Theseus
 
     IntegralMeasures GetIntegralMeasuresBaseline() const { return diag0; }
 
-    inline real_t GetMaxCharSpeed()
+    inline real_t GetMaxCharSpeed() const
     {
       return max_char_speed;
     }
@@ -99,6 +98,19 @@ namespace Theseus
     { std::cout << "RHSOperatorBase::ComputeIntegralMeasures empty." << std::endl; }
     virtual void Mult(const mfem::Vector &u, mfem::Vector &dudt) const override
     { std::cout << "RHSOperatorBase::Mult empty." << std::endl; }
+    virtual std::string GasModelName() const {
+      return std::string("RHSOperatorBase::GasModel: NONE");
+    }
+    virtual std::string NumFluxName() const {
+      return std::string("RHSOperatorBase::NumFlux: NONE");
+    }
+    virtual std::string FlowModelName() const {
+      return std::string("RHSOperatorBase::FlowModel: NONE");
+    }
+    virtual const GasModelInterface& GetGasModelInterface() const
+    {
+      MFEM_ABORT("RHSOperatorBase::GetGasModelInterface() called on base class.");
+    }
   };
 
   template<typename PhysicsT>
@@ -113,6 +125,11 @@ namespace Theseus
   protected:
     mutable OperatorCache operator_cache;
     mutable DeviceCache device_cache;
+    const std::string gasModelName;
+    const std::string numFluxName;
+    const std::string flowModelName;
+    std::shared_ptr<const Gas> gas;
+    std::shared_ptr<const GasModelInterface> gas_interface;
   public:
     RHSOperator(std::shared_ptr<mfem::ParFiniteElementSpace> vfes_,
 		std::shared_ptr<mfem::ParFiniteElementSpace> fes0_,
@@ -120,13 +137,19 @@ namespace Theseus
 		std::shared_ptr<mfem::ParGridFunction> eta_,
 		std::shared_ptr<mfem::ParGridFunction> alpha_,
 		std::shared_ptr<Prandtl::Indicator> indicator_,
-		const Gas &gasModel_,
+		std::shared_ptr<const Gas> gas_,
+		const std::string &gasModelName_,
+		const std::string &numFluxName_,
+		const std::string &flowModelName_,
 		std::shared_ptr<mfem::ParGridFunction> r_gf_ = nullptr,
 		const real_t alpha_max = 0.5, const real_t alpha_min = 0.001)
-      : RHSOperatorBase(vfes_, fes0_, pmesh_, eta_, alpha_,
-			indicator_, r_gf_, alpha_max, alpha_min)
+    : RHSOperatorBase(vfes_, fes0_, pmesh_, eta_, alpha_,
+		      indicator_, r_gf_, alpha_max, alpha_min),
+      gasModelName(gasModelName_), numFluxName(numFluxName_),
+      flowModelName(flowModelName_), gas(std::move(gas_)), 
+      gas_interface(std::make_shared<Theseus::GasModelInterfaceT<Gas>>(gas))
     {
-      operator_cache.gas = gasModel_;
+      operator_cache.gas = *gas;
       operator_cache.alpha = alpha_;
     }
 
@@ -142,6 +165,16 @@ namespace Theseus
     void Mult(const mfem::Vector &u, mfem::Vector &dudt) const override;
     void ComputeIntegralMeasures(const mfem::Vector &u, Theseus::IntegralMeasures &diag) const override;
     virtual real_t FlowMult(const mfem::Vector &pu, mfem::Vector &pdudt) const = 0;
+
+    std::string GasModelName() const override { return gasModelName; }
+    std::string NumFluxName() const override { return numFluxName; }
+    std::string FlowModelName() const override { return flowModelName; }
+
+    const Gas &GetGasModel() const { return *gas; };
+    const GasModelInterface& GetGasModelInterface() const override
+    {
+      return *gas_interface;
+    }
   };
 
 }

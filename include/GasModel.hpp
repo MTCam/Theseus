@@ -8,9 +8,9 @@
 namespace Theseus
 {
 
-// ============================================================================
-// GasModel: Encapsulate EOS/Transport
-// ============================================================================
+  // ============================================================================
+  // GasModel: Encapsulate EOS/Transport
+  // ============================================================================
   template <typename EOSImpl, typename TransportImpl>
   struct GasModel
   {
@@ -135,7 +135,7 @@ namespace Theseus
     MFEM_HOST_DEVICE
     inline real_t internal_energy_from_pressure(const StateView &S, real_t pressure) const
     {
-        // rho*e = rho*E - 0.5*rho*|u|^2
+      // rho*e = rho*E - 0.5*rho*|u|^2
       return eos.internal_energy_from_pressure(phys, L, S, pressure);
     }
 
@@ -209,11 +209,76 @@ namespace Theseus
   };
 
   using IdealGasModel = GasModel<IdealSingleGasEOS, Transport>;
-  using ActiveGasModel = IdealGasModel;
-  // Bridge helper so old call-sites that only have PhysicsConstants can move over
-  // inline IdealGasModel make_ideal_gas_model(std::shared_ptr<const PhysicsConstants> phys)
-  // {
-  //   return IdealGasModel(phys);
-  // }
+
+  // Bridge class interface - helps external callers
+  // (e.g. Simulation driver) access essential GasModel
+  // functions.
+  class GasModelInterface
+  {
+  public:
+    virtual ~GasModelInterface() = default;
+    virtual mfem::real_t density(const Theseus::DofStateView &S) const {
+      MFEM_ABORT("GasModelInterface::density called on base class.");
+    }
+    virtual mfem::real_t velocity(const Theseus::DofStateView &S,
+				  int d) const{
+      MFEM_ABORT("GasModelInterface::velocity called on base class.");
+    }
+    virtual mfem::real_t pressure(const Theseus::DofStateView &S) const {
+      MFEM_ABORT("GasModelInterface::pressure called on base class.");
+    }
+    virtual mfem::real_t temperature(const Theseus::DofStateView &S) const {
+      MFEM_ABORT("GasModelInterface::temperature called on base class.");
+    }
+    virtual const Theseus::StateLayout& layout() const {
+      MFEM_ABORT("GasModelInterface::layout called on base class.");
+    }
+    virtual const Theseus::PhysicsConstants& phys() const {
+      MFEM_ABORT("GasModelInterface::density called on base class.");
+    }
+  };
+
+  // Templated wrapper for GasModelInterface
+  template <typename GasT>
+  class GasModelInterfaceT : public GasModelInterface
+  {
+  public:
+    explicit GasModelInterfaceT(std::shared_ptr<const GasT> gas_)
+      : gas(std::move(gas_))
+    {}
+
+    mfem::real_t density(const Theseus::DofStateView &S) const override
+    {
+      return gas->density(S);
+    }
+
+    mfem::real_t velocity(const Theseus::DofStateView &S, int d) const override
+    {
+      return gas->velocity(S, d);
+    }
+
+    mfem::real_t pressure(const Theseus::DofStateView &S) const override
+    {
+      return gas->pressure(S);
+    }
+
+    mfem::real_t temperature(const Theseus::DofStateView &S) const override
+    {
+      return gas->temperature(S);
+    }
+
+    const Theseus::StateLayout& layout() const override
+    {
+      return gas->L;
+    }
+
+    const Theseus::PhysicsConstants& phys() const override
+    {
+      return gas->phys;
+    }
+
+  private:
+    std::shared_ptr<const GasT> gas;
+  };
 
 } // namespace Theseus

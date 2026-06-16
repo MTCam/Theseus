@@ -28,11 +28,14 @@ namespace Theseus
                std::shared_ptr<mfem::ParGridFunction> alpha_,
                std::vector<std::shared_ptr<mfem::ParGridFunction> > &grad_u_,
                std::shared_ptr<Prandtl::Indicator> indicator_,
-               const Gas &gasModel_,
+               std::shared_ptr<const Gas> gasModel_,
+	       const std::string &gasModelName_,
+	       const std::string &numFluxName_,
                std::shared_ptr<mfem::ParGridFunction> r_gf_ = nullptr,
                const mfem::real_t alpha_max=0.5, const mfem::real_t alpha_min=0.001)
     : RHSOperator<Physics>(vfes_, fes0_, pmesh_, eta_, alpha_,
-                           indicator_, gasModel_, r_gf_, alpha_max, alpha_min),
+                           indicator_, gasModel_, gasModelName_, numFluxName_,
+			   "NavierStokes", r_gf_, alpha_max, alpha_min),
       grad_u(grad_u_)
     {}
 

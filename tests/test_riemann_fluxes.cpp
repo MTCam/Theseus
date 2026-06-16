@@ -158,8 +158,7 @@ TEST(RiemannFlux_Consistency_2D)
                                  /* mu    = */ 0.02);
   
   Theseus::StateLayout layout(dim, ndofs);
-  Theseus::ActiveGasModel gasModel(phys, layout);
-  //  Theseus::NavierStokesFlux physicalFlux(gasModel);
+  Theseus::IdealGasModel gasModel(phys, layout);
   
   Theseus::ChandrashekarFlux::InviscidFlux chan;
   Theseus::LaxFriedrichsFlux::InviscidFlux llf;
@@ -179,8 +178,7 @@ TEST(RiemannFlux_NormalReversal_2D)
 
     Theseus::PhysicsConstants phys(1.4, 0.72, 287.05, 0.02);
     Theseus::StateLayout layout(dim, ndofs);
-    Theseus::ActiveGasModel gasModel(phys, layout);
-    // Theseus::NavierStokesFlux physicalFlux(gasModel);
+    Theseus::IdealGasModel gasModel(phys, layout);
 
     Theseus::ChandrashekarFlux::InviscidFlux chan;
     Theseus::LaxFriedrichsFlux::InviscidFlux llf;
@@ -200,8 +198,7 @@ TEST(RiemannFlux_ZeroNormalVelocityPressureFlux_2D)
 
     Theseus::PhysicsConstants phys(1.4, 0.72, 287.05, 0.02);
     Theseus::StateLayout layout(dim, ndofs);
-    Theseus::ActiveGasModel gasModel(phys, layout);
-    //Theseus::NavierStokesFlux physicalFlux(gasModel);
+    Theseus::IdealGasModel gasModel(phys, layout);
 
     Theseus::ChandrashekarFlux::InviscidFlux chan;
     Theseus::LaxFriedrichsFlux::InviscidFlux llf;
@@ -221,8 +218,7 @@ TEST(RiemannFlux_FiniteStrongState_2D)
 
     Theseus::PhysicsConstants phys(1.4, 0.72, 287.05, 0.02);
     Theseus::StateLayout layout(dim, ndofs);
-    Theseus::ActiveGasModel gasModel(phys, layout);
-    // Theseus::NavierStokesFlux physicalFlux(gasModel);
+    Theseus::IdealGasModel gasModel(phys, layout);
 
     Theseus::ChandrashekarFlux::InviscidFlux chan;
     Theseus::LaxFriedrichsFlux::InviscidFlux llf;

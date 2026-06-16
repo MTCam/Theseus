@@ -7,7 +7,6 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 project(Theseus)
 
 option(BUILD_TESTING "Build unit tests" ON)
-# option(PARABOLIC "Enable Compressible Navier-Stokes Solver" OFF)
 option(SUBCELL_FV_BLENDING "Enable subcell blending" ON)
 option(AXISYMMETRIC "Enable Axisymmetric domain solver" OFF)
 option(SUTHERLAND "Enable Sutherland transport model" OFF)
@@ -39,8 +38,7 @@ if (ENABLE_CUDA)
    set(CMAKE_CUDA_HOST_COMPILER ${MPI_CXX_COMPILER})
    enable_language(CUDA)
    set_source_files_properties(
-     src/Operators/DGSEMOperator.cpp
-     src/Operators/NonlinearForm/DGSEMNonlinearForm.cpp
+     src/Simulation.cpp
      PROPERTIES LANGUAGE CUDA
    )
    set_property(TARGET theseus PROPERTY CUDA_ARCHITECTURES 80)
@@ -163,7 +161,6 @@ target_sources(theseus
     PRIVATE src/Indicator.cpp
     PRIVATE src/PerssonPeraireIndicator.cpp
     PRIVATE src/Simulation.cpp
-    PRIVATE src/DGSEMNonlinearForm.cpp
 )
 
 message(STATUS "Adding ${CMAKE_PREFIX_PATH}/include/mfem to include path")
