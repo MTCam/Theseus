@@ -49,7 +49,7 @@
                 "function": "IsentropicVortexIC"
             }
         },
-        "numerical_flux": "HLL",
+        "numerical_flux": "Chandrashekar",
         "ode_solver": "RK3SSP"
     }
 }
