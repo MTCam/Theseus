@@ -37,11 +37,14 @@ if (ENABLE_CUDA)
    message(STATUS "Building ${PROJECT_NAME} for CUDA platform.")
    set(CMAKE_CUDA_HOST_COMPILER ${MPI_CXX_COMPILER})
    enable_language(CUDA)
+   MESSAGE(STATUS "CUDA COMPILER ID: ${CMAKE_CUDA_COMPILER_ID}")
+   # I hope CMake will fail if this aint set
+   MESSAGE(STATUS "CMAKE_CUDA_ARCHITECTURES: ${CMAKE_CUDA_ARCHITECTURES}")
    set_source_files_properties(
      src/Simulation.cpp
      PROPERTIES LANGUAGE CUDA
    )
-   set_property(TARGET theseus PROPERTY CUDA_ARCHITECTURES 80)
+   # set_property(TARGET theseus PROPERTY CUDA_ARCHITECTURES 80)
    target_include_directories(theseus PRIVATE
      $<$<COMPILE_LANGUAGE:CUDA>:${MPI_CXX_INCLUDE_DIRS}>
    )
