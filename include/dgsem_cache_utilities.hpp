@@ -1,6 +1,7 @@
 #pragma once
 #include "mfem.hpp"
 #include "dgsem_cache.hpp"
+#include "timer.hpp"
 
 namespace Theseus {
 
@@ -10,9 +11,15 @@ namespace Theseus {
   void GetOperatorCache(mfem::FiniteElementSpace *fes, CacheT *cache)
   {
     GetDiscretizationInfo(fes, cache);
-    SetupRestrictions(fes, cache);
+    {
+      Theseus::ScopedTimer timer("SetupRestrictions");
+      SetupRestrictions(fes, cache);
+    }
     SetupVolumeMarkers(fes, cache);
-    SetupGeometricTerms(fes, cache);
+    {
+      Theseus::ScopedTimer timer("SetupGeometricTerms");
+      SetupGeometricTerms(fes, cache);
+    }
     // AssembleBoundaryFaceGeometryTerms(fes, cache);
     // TODO: Move these to where the caches are created and validated
     // MFEM_VERIFY(nfaces == cache.num_interior_faces, "restriction faces != cached interior faces");

@@ -254,6 +254,10 @@ namespace Theseus
     const int norm_size = nfp * dc.dim;
     const int npoints_bnd = nfaces_restr * nfp;
 
+    if(restr_size == 0){
+      return 0.0;
+    }
+
     if(operator_cache.uBnd.Size() != restr_size)
       {
         operator_cache.uBnd.SetSize(restr_size);

@@ -5,11 +5,16 @@ namespace Theseus
   template<typename PhysicsT>
   void RHSOperator<PhysicsT>::Finalize(mfem::real_t time)
   {
+    Theseus::ScopedTimer finalize_timer("RHSOperator::Finalize");
+
     RHSOperatorBase::Finalize(time);
     GetOperatorCache(vfes.get(), &operator_cache);
     AssembleBoundaryFaceGeometryTerms(vfes.get(), bdr_marker, &operator_cache);
 #ifdef SUBCELL_FV_BLENDING
-    ComputeSubcellMetrics(vfes.get(), &operator_cache);
+    {
+      Theseus::ScopedTimer timer("ComputeSubcellMetrics");
+      ComputeSubcellMetrics(vfes.get(), &operator_cache);
+    }
 #endif
 
     // operator_cache.gas = gasModel; // gasModel *must* be POD
@@ -28,7 +33,7 @@ namespace Theseus
   void RHSOperator<PhysicsT>::ComputeIndicatorField(const mfem::Vector &u,
                                                     mfem::Vector &indicator_field) const
   {
-    ScopedTimer timer("ComputeIndicator");
+    Theseus::ScopedTimer timer("ComputeIndicator");
 
     // This block is executed by the host
     const int nval_restr = operator_cache.restr_v->Height();
