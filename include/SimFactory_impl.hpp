@@ -9,6 +9,7 @@
 
 namespace Theseus {
 
+  // TODO: Update for LTE Table Data, and LTE Gas Model setup
   template <typename Physics>
   std::unique_ptr<Theseus::RHSOperatorBase>
   MakeTypedRHSOperator(

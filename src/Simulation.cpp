@@ -527,12 +527,13 @@ namespace Theseus
       MPI_Bcast(lteTableData.inv_table.GetData(), N_rho * N_T, MPI_DOUBLE, 0, pmesh->GetComm());
       MPI_Bcast(lteTableData.e_grid.GetData(), N_T, MPI_DOUBLE, 0, pmesh->GetComm());
       lteTables.tables = {
-	thermoTabData.lte_table.HostRead(), thermoTabData.inv_table.HostRead(),
-	thermoTabData.rho_grid.HostRead(), thermoTabData.T_grid.HostRead(),
-	thermoTabData.e_grid.HostRead()
+	lteTableData.lte_table.HostRead(), lteTableData.inv_table.HostRead(),
+	lteTableData.rho_grid.HostRead(), lteTableData.T_grid.HostRead(),
+	lteTableData.e_grid.HostRead()
       };
     }
 
+    // TODO: Pass in LTE tables, whether we need them or not
     rhsOp = Theseus::MakeRHSOperator(runtime, vfes, fes0, pmesh, eta, alpha, grad_u,
 				     indicator, r_gf, alpha_max);
 
