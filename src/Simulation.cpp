@@ -502,6 +502,7 @@ namespace Theseus
 	}
       lteTableData.e_grid.SetSize(N_T);
       lteTables.L.setup(N_rho, N_T);
+#ifdef USE_PLATO
       if(Mpi::Root())
 	{
 	  std::cout << "Constructing LTE table for " << mixture
@@ -516,7 +517,12 @@ namespace Theseus
 				      lteTableData.T_grid.GetData(), lteTableData.inv_table.GetData());
 	  plato_finalize();
 	}
-
+#else
+      if(Mpi::Root()){
+	std::cerr << "LTE runs *must* have plato support." << std::endl;
+      }
+      return 1;
+#endif
       MPI_Bcast(lteTableData.lte_table.GetData(), N_rho * N_T * num_properties, MPI_DOUBLE, 0, pmesh->GetComm());
       MPI_Bcast(lteTableData.inv_table.GetData(), N_rho * N_T, MPI_DOUBLE, 0, pmesh->GetComm());
       MPI_Bcast(lteTableData.e_grid.GetData(), N_T, MPI_DOUBLE, 0, pmesh->GetComm());
