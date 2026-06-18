@@ -62,4 +62,80 @@ namespace Theseus
     gasModel.entropy_to_conserved(Se, Sc);
   }
 
+  MFEM_HOST_DEVICE inline
+  int hunt(const mfem::real_t *arr, int n, mfem::real_t x, int ind_lo)
+  {
+      int ind_hi, ind_mid;
+      int incr = 1;
+      bool ascend = (arr[n-1] >= arr[0]);
+
+      if (ind_lo < 0 || ind_lo >= n)
+      {
+          ind_lo = -1;
+          ind_hi =  n;
+      }
+      else
+      {
+          // Right or Left Hunt
+          if ( (x >= arr[ind_lo]) == ascend)
+          {
+              // Hunt right
+              if (ind_lo == n-1) return ind_lo;
+              ind_hi = ind_lo + incr;
+
+              while (ind_hi < n && ((x >= arr[ind_hi]) == ascend))
+              {
+                  ind_lo = ind_hi;
+                  incr *= 2;
+                  ind_hi = ind_lo + incr;
+                  if (ind_hi > n-1)
+                  {
+                      ind_hi = n;
+                      break;
+                  }
+              }
+          }
+          // Hunt left
+          else
+          {
+              if (ind_lo == 0)
+              {
+                  ind_lo = -1;
+                  return ind_lo;
+              }
+              ind_hi = ind_lo;
+              ind_lo = ind_lo-1;
+              while (ind_lo >= 0 && ((x < arr[ind_lo]) == ascend))
+              {
+                  ind_hi = ind_lo;
+                  incr *= 2;
+                  if (incr >= ind_hi)
+                  {
+                      ind_lo = -1;
+                      break;
+                  }
+                  else ind_lo = ind_hi - incr;
+              }
+          }
+      }
+
+      // Binary Search in the estimated bracket
+      while(ind_hi - ind_lo != 1)
+      {
+          ind_mid = ind_lo + (ind_hi - ind_lo)/2;
+          if( (x >= arr[ind_mid]) == ascend)
+          {
+              ind_lo = ind_mid;
+          }
+          else
+          {
+              ind_hi = ind_mid;
+          }
+      }
+
+      if(x == arr[n-1]) ind_lo = n-2;
+      if(x == arr[0]) ind_lo = 0;
+      return ind_lo;
+  }
+
 }

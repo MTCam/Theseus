@@ -95,6 +95,8 @@ namespace Theseus
 
     std::shared_ptr<mfem::ODESolver> ode_solver;
     std::unique_ptr<Theseus::RHSOperatorBase> rhsOp;
+    Theseus::LTETableData lteTableData;
+    Theseus::LTETables    lteTables;
 
     int signature;
   
