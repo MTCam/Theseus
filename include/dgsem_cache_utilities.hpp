@@ -164,9 +164,9 @@ namespace Theseus {
     cache->D.SetSize(Np_x*Np_x);
     cache->Dhat.SetSize(Np_x*Np_x);
     cache->Dhat2.SetSize(Np_x*Np_x);
-    std::memcpy(cache->D.HostWrite(),     D_T.Data(),     sizeof(real_t)*Np_x*Np_x);
-    std::memcpy(cache->Dhat.HostWrite(),  Dhat_T.Data(),  sizeof(real_t)*Np_x*Np_x);
-    std::memcpy(cache->Dhat2.HostWrite(), Dhat2_T.Data(), sizeof(real_t)*Np_x*Np_x);
+    std::memcpy(cache->D.HostWrite(),     D_T.Data(),     sizeof(mfem::real_t)*Np_x*Np_x);
+    std::memcpy(cache->Dhat.HostWrite(),  Dhat_T.Data(),  sizeof(mfem::real_t)*Np_x*Np_x);
+    std::memcpy(cache->Dhat2.HostWrite(), Dhat2_T.Data(), sizeof(mfem::real_t)*Np_x*Np_x);
 
     cache->elWaveSpeed.SetSize(nelem);
     cache->elWaveSpeed = 0.0;
@@ -370,12 +370,12 @@ namespace Theseus {
     cache->bnd_xyz.SetSize(nbnd_faces * nfp * dim);     // recommended
     cache->bnd_radius.SetSize(nbnd_faces * nfp);        // optional, useful later
     
-    real_t *nor_d = cache->bnd_normals.HostWrite();
-    real_t *wt_d  = cache->bnd_wt.HostWrite();
-    real_t *xyz_d = cache->bnd_xyz.HostWrite();
-    real_t *rad_d = cache->bnd_radius.HostWrite();
+    mfem::real_t *nor_d = cache->bnd_normals.HostWrite();
+    mfem::real_t *wt_d  = cache->bnd_wt.HostWrite();
+    mfem::real_t *xyz_d = cache->bnd_xyz.HostWrite();
+    mfem::real_t *rad_d = cache->bnd_radius.HostWrite();
 
-    const real_t w0 = cache->ir->IntPoint(0).weight;
+    const mfem::real_t w0 = cache->ir->IntPoint(0).weight;
 
     mfem::Vector nor(dim);
     mfem::Vector phys(dim);
@@ -383,7 +383,7 @@ namespace Theseus {
     auto store = [&](int fslot, int fp_restr,
                      const mfem::Vector &nor,
                      const mfem::Vector &phys,
-                     real_t inv_wJ1)
+                     mfem::real_t inv_wJ1)
     {
       const int base_scl = fslot * nfp + fp_restr;
       const int base_vec = base_scl * dim;
@@ -414,7 +414,7 @@ namespace Theseus {
             const mfem::IntegrationPoint &ip = cache->ir_face->IntPoint(fp_geom);
             tr->SetAllIntPoints(&ip);
 
-            const real_t J1 = tr->GetElement1Transformation().Weight();
+            const mfem::real_t J1 = tr->GetElement1Transformation().Weight();
             if (dim == 1)
               {
                 nor(0) = (tr->GetElement1IntPoint().x - 0.5) * 2.0;
@@ -434,9 +434,9 @@ namespace Theseus {
   void AssembleElementVolumeGeometricTerms(mfem::ElementTransformation &Tr, CacheT *cache)
   {
     
-    real_t *Jinv_h = cache->elJac.HostWrite();
-    real_t *Met_h  = cache->elMetric.HostWrite();
-    real_t *qWgts_h = cache->elQuadratureWeights.HostWrite();
+    mfem::real_t *Jinv_h = cache->elJac.HostWrite();
+    mfem::real_t *Met_h  = cache->elMetric.HostWrite();
+    mfem::real_t *qWgts_h = cache->elQuadratureWeights.HostWrite();
 
     int dim = cache->dim;
     mfem::Vector metric1(dim);
@@ -447,7 +447,7 @@ namespace Theseus {
       {
         const mfem::IntegrationPoint &ip = cache->ir_vol->IntPoint(q);
         Tr.SetIntPoint(&ip);
-        const real_t J = Tr.Weight();
+        const mfem::real_t J = Tr.Weight();
         Jinv_h[e*nq + q] = J;
         qWgts_h[e*nq + q] = J * ip.weight;
         const mfem::DenseMatrix &adj = Tr.AdjugateJacobian();              
@@ -495,13 +495,13 @@ namespace Theseus {
     cache->face_wt_minus.SetSize(ninterior_faces * nfp);
     cache->face_wt_plus.SetSize(ninterior_faces * nfp);
  
-    real_t *nor_d  = cache->face_normals.HostWrite();
-    real_t *inv1_d = cache->face_wt_minus.HostWrite();
-    real_t *inv2_d = cache->face_wt_plus.HostWrite();
-    const real_t w0 = cache->ir->IntPoint(0).weight;
+    mfem::real_t *nor_d  = cache->face_normals.HostWrite();
+    mfem::real_t *inv1_d = cache->face_wt_minus.HostWrite();
+    mfem::real_t *inv2_d = cache->face_wt_plus.HostWrite();
+    const mfem::real_t w0 = cache->ir->IntPoint(0).weight;
     
     auto store = [&](int fslot, int fp, const mfem::Vector &nor,
-                     real_t inv_wJ1, real_t inv_wJ2)
+                     mfem::real_t inv_wJ1, mfem::real_t inv_wJ2)
     {
       const int nbase = (fslot * nfp + fp) * dim;
       for (int d = 0; d < dim; ++d) { nor_d[nbase + d] = nor(d); }
@@ -533,14 +533,14 @@ namespace Theseus {
               const mfem::IntegrationPoint &ip = cache->ir_face->IntPoint(fp_geom);
               tr->SetAllIntPoints(&ip);
               
-              const real_t J1 = tr->GetElement1Transformation().Weight();
-              const real_t J2 = tr->GetElement2Transformation().Weight();
+              const mfem::real_t J1 = tr->GetElement1Transformation().Weight();
+              const mfem::real_t J2 = tr->GetElement2Transformation().Weight();
               
               if (dim == 1) { nor(0) = (tr->GetElement1IntPoint().x - 0.5)*2.0; }
               else          { mfem::CalcOrtho(tr->Jacobian(), nor); }
               
-              //const real_t fac = face_is_flipped ? -1.0 : 1.0;
-              const real_t fac = 1.0;
+              //const mfem::real_t fac = face_is_flipped ? -1.0 : 1.0;
+              const mfem::real_t fac = 1.0;
               store(fslot, fp_restr, nor, fac/(w0*J1), fac/(w0*J2));
             }
           continue;
@@ -554,15 +554,15 @@ namespace Theseus {
               const mfem::IntegrationPoint &ip = cache->ir_face->IntPoint(fp_geom);
               sh_tr->SetAllIntPoints(&ip);
               
-              const real_t J1 = sh_tr->GetElement1Transformation().Weight();
-              const real_t J2 = sh_tr->GetElement2Transformation().Weight();
+              const mfem::real_t J1 = sh_tr->GetElement1Transformation().Weight();
+              const mfem::real_t J2 = sh_tr->GetElement2Transformation().Weight();
               
               if (dim == 1) { nor(0) = (sh_tr->GetElement1IntPoint().x - 0.5)*2.0; }
               else          { mfem::CalcOrtho(sh_tr->Jacobian(), nor); }
               
-              //const real_t fac = face_is_flipped ? -1.0 : 1.0;
-              const real_t fac1 = 1.0;
-              const real_t fac2 = 0.0;
+              //const mfem::real_t fac = face_is_flipped ? -1.0 : 1.0;
+              const mfem::real_t fac1 = 1.0;
+              const mfem::real_t fac2 = 0.0;
               store(fslot, fp_restr, nor, fac1/(w0*J1), fac2/(w0*J2));
             }
         } // Shared face processing
@@ -579,7 +579,7 @@ namespace Theseus {
     const int Np_x = cache->Np_x;
     const int Np_y = cache->Np_y;
     const int Np_z = cache->Np_z;
-    const real_t *D = cache->D.HostRead();
+    const mfem::real_t *D = cache->D.HostRead();
  
     mfem::DenseTensor SubcellMetricXi, SubcellMetricEta, SubcellMetricZeta;
     SubcellMetricXi.SetSize(dim, Np_z * Np_y * (Np_x + 1), ne);
@@ -612,9 +612,9 @@ namespace Theseus {
                     nor = metric1;
                     for (int l = 0; l < i; l++)
                       {
-                        const real_t *Dcol = D + l*Np_x; // D_T.GetColumn(l, D_row);
+                        const mfem::real_t *Dcol = D + l*Np_x; // D_T.GetColumn(l, D_row);
                         tmp = 0.0;
-                        real_t weight = cache->ir->IntPoint(l).weight;
+                        mfem::real_t weight = cache->ir->IntPoint(l).weight;
                         for (int m = 0; m < Np_x; m++)
                           {
                             const mfem::IntegrationPoint &ip2 = cache->ir_vol->IntPoint(pos + m);
@@ -647,9 +647,9 @@ namespace Theseus {
                         nor = metric1;
                         for (int l = 0; l < j; l++)
                           {
-                            const real_t *Dcol = D + l*Np_x; // D_T.GetColumn(l, D_row);
+                            const mfem::real_t *Dcol = D + l*Np_x; // D_T.GetColumn(l, D_row);
                             tmp = 0.0;
-                            real_t weight = cache->ir->IntPoint(l).weight;
+                            mfem::real_t weight = cache->ir->IntPoint(l).weight;
                             for (int m = 0; m < Np_y; m++)
                               {
                                 const int pos = pos1 + m * Np_x;
@@ -683,9 +683,9 @@ namespace Theseus {
                             nor = metric1;
                             for (int l = 0; l < k; l++)
                               {
-                                const real_t *Dcol = D + l*Np_x; // D_T.GetColumn(l, D_row);
+                                const mfem::real_t *Dcol = D + l*Np_x; // D_T.GetColumn(l, D_row);
                                 tmp = 0.0;
-                                real_t weight = cache->ir->IntPoint(l).weight;
+                                mfem::real_t weight = cache->ir->IntPoint(l).weight;
                                 for (int m = 0; m < Np_z; m++)
                                   {
                                     const int pos = m * Np_y * Np_x + pos1 + i;
@@ -734,7 +734,7 @@ namespace Theseus {
     const int nq_metric_zeta = n_metric_zeta * dim;
 
     cache->subcellWeights.SetSize(Np_x);
-    real_t *wgts = cache->subcellWeights.HostWrite();
+    mfem::real_t *wgts = cache->subcellWeights.HostWrite();
     for (int i = 0;i < Np_x;i++){
       wgts[i] = cache->ir->IntPoint(i).weight;
     }
@@ -745,9 +745,9 @@ namespace Theseus {
     if (dim > 2)
       cache->subcellMetricZeta.SetSize(nq_metric_zeta*ne);
     
-    real_t *xi_h   = cache->subcellMetricXi.HostWrite();
-    real_t *eta_h  = (dim > 1 ? cache->subcellMetricEta.HostWrite() : nullptr);
-    real_t *zeta_h  = (dim > 2 ? cache->subcellMetricZeta.HostWrite() : nullptr);
+    mfem::real_t *xi_h   = cache->subcellMetricXi.HostWrite();
+    mfem::real_t *eta_h  = (dim > 1 ? cache->subcellMetricEta.HostWrite() : nullptr);
+    mfem::real_t *zeta_h  = (dim > 2 ? cache->subcellMetricZeta.HostWrite() : nullptr);
 
     for (int el = 0; el < ne; ++el){
       const mfem::DenseMatrix &Mxi  = SubcellMetricXi(el);

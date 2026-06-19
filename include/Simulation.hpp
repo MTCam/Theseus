@@ -3,6 +3,7 @@
 #include "Theseus.hpp"
 #include "RHSOperator.hpp"
 #include "Indicator.hpp"
+#include "LTETable.hpp"
 
 namespace Theseus
 {

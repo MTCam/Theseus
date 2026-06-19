@@ -14,7 +14,7 @@ namespace Theseus
                           public mfem::ParNonlinearForm
   {
   protected:
-    mutable real_t max_char_speed;
+    mutable mfem::real_t max_char_speed;
     std::shared_ptr<mfem::ParFiniteElementSpace> vfes;
     std::shared_ptr<mfem::ParFiniteElementSpace> fes0;
     std::shared_ptr<mfem::ParMesh> pmesh;
@@ -26,17 +26,17 @@ namespace Theseus
     const int num_dofs_scalar;
     const int Ndofs;
 
-    const real_t sharpness_fac = 9.21024;
-    const real_t modalThreshold;
-    const real_t alpha_min;
-    const real_t alpha_max;
+    const mfem::real_t sharpness_fac = 9.21024;
+    const mfem::real_t modalThreshold;
+    const mfem::real_t alpha_min;
+    const mfem::real_t alpha_max;
 
     std::vector<mfem::Array<int>> bdr_marker;
     mfem::Array<Theseus::BCDescriptor> bc_descriptors;
     mfem::Vector bc_vector_data;
     mfem::Vector bc_scalar_data;
 
-    mutable real_t alpha_dof;
+    mutable mfem::real_t alpha_dof;
     mutable Theseus::IntegralMeasures diag0;
   public:
     RHSOperatorBase(std::shared_ptr<mfem::ParFiniteElementSpace> vfes_,
@@ -46,7 +46,7 @@ namespace Theseus
                     std::shared_ptr<mfem::ParGridFunction> alpha_,
                     std::shared_ptr<Prandtl::Indicator> indicator_,
                     std::shared_ptr<mfem::ParGridFunction> r_gf_ = nullptr,
-                    const real_t alpha_max = 0.5, const real_t alpha_min = 0.001)
+                    const mfem::real_t alpha_max = 0.5, const mfem::real_t alpha_min = 0.001)
     : mfem::TimeDependentOperator(vfes_->GetTrueVSize()),
       mfem::ParNonlinearForm(vfes_.get()),
       vfes(vfes_), fes0(fes0_), pmesh(pmesh_),
@@ -78,19 +78,19 @@ namespace Theseus
       bdr_marker.push_back(bdr_marker_);
     }
 
-    virtual void Finalize(real_t time=0)
+    virtual void Finalize(mfem::real_t time=0)
     {
       SetTime(time);
     }
 
     IntegralMeasures GetIntegralMeasuresBaseline() const { return diag0; }
 
-    inline real_t GetMaxCharSpeed() const
+    inline mfem::real_t GetMaxCharSpeed() const
     {
       return max_char_speed;
     }
 
-    inline real_t& GetTimeRef()
+    inline mfem::real_t& GetTimeRef()
     {
       return t;
     }
@@ -142,7 +142,7 @@ namespace Theseus
 		const std::string &numFluxName_,
 		const std::string &flowModelName_,
 		std::shared_ptr<mfem::ParGridFunction> r_gf_ = nullptr,
-		const real_t alpha_max = 0.5, const real_t alpha_min = 0.001)
+		const mfem::real_t alpha_max = 0.5, const mfem::real_t alpha_min = 0.001)
     : RHSOperatorBase(vfes_, fes0_, pmesh_, eta_, alpha_,
 		      indicator_, r_gf_, alpha_max, alpha_min),
       gasModelName(gasModelName_), numFluxName(numFluxName_),
@@ -154,7 +154,7 @@ namespace Theseus
     }
 
     virtual ~RHSOperator() = default;
-    void Finalize(real_t time = 0) override;
+    void Finalize(mfem::real_t time = 0) override;
 
 #ifdef SUBCELL_FV_BLENDING
     void ComputeBlendingCoefficient(const mfem::Vector &u) const;
@@ -164,7 +164,7 @@ namespace Theseus
 
     void Mult(const mfem::Vector &u, mfem::Vector &dudt) const override;
     void ComputeIntegralMeasures(const mfem::Vector &u, Theseus::IntegralMeasures &diag) const override;
-    virtual real_t FlowMult(const mfem::Vector &pu, mfem::Vector &pdudt) const = 0;
+    virtual mfem::real_t FlowMult(const mfem::Vector &pu, mfem::Vector &pdudt) const = 0;
 
     std::string GasModelName() const override { return gasModelName; }
     std::string NumFluxName() const override { return numFluxName; }

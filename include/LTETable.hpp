@@ -2,8 +2,10 @@
 
 #include "Physics.hpp"
 #include "GasState.hpp"
-#include "plato_Cpp_library_interface.h"
 #include "theseus_kernels.hpp"
+#ifdef USE_PLATO
+#include "plato_Cpp_library_interface.h"
+#endif
 
 namespace Theseus
 {
@@ -54,11 +56,11 @@ namespace Theseus
 
   struct LTETableView
   {
-    const real_t *lte_table;
-    const real_t *inv_table;
-    const real_t *rho_grid;
-    const real_t *T_grid;
-    const real_t *e_grid;
+    const mfem::real_t *lte_table;
+    const mfem::real_t *inv_table;
+    const mfem::real_t *rho_grid;
+    const mfem::real_t *T_grid;
+    const mfem::real_t *e_grid;
   };
 
 
@@ -97,12 +99,12 @@ namespace Theseus
   //   return result;
   // }
 
-  inline void fill_lte_table(const Theseus::TableLayout &L, const mfem::real_t* rho_grid, const mfem::real_t* T_grid,
+  inline void fill_lte_table(const Theseus::LTETableLayout &L, const mfem::real_t* rho_grid, const mfem::real_t* T_grid,
                              mfem::real_t* lte_table, mfem::real_t &e_min, mfem::real_t &e_max)
   {
 
     mfem::real_t UKB = 1.380649e-23;
-
+#ifdef USE_PLATO
     int nb_comp = plato_get_nb_comp();
     int nb_spec = plato_get_nb_species();
     int nb_temp = plato_get_nb_temp();
@@ -205,11 +207,13 @@ namespace Theseus
         }
       }
     }
+#endif
   }
 
-  inline void fill_inv_lte_table(const Theseus::TableLayout &L, const mfem::real_t* rho_grid, const mfem::real_t* e_grid,
+  inline void fill_inv_lte_table(const Theseus::LTETableLayout &L, const mfem::real_t* rho_grid, const mfem::real_t* e_grid,
 				 const mfem::real_t* T_grid, mfem::real_t* inv_table)
   {
+#ifdef USE_PLATO
     int nb_comp = plato_get_nb_comp();
     int nb_spec = plato_get_nb_species();
 
@@ -258,5 +262,6 @@ namespace Theseus
         inv_table[L.lte_property_index(0 , i, j)] = T;
       }
     }
+#endif
   }
 }

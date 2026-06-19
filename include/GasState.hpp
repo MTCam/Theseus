@@ -107,7 +107,7 @@ namespace Theseus
   // Usage pattern:
   //
   //   Vector state = [rho, rhoVx, rhoVy, rhoVz, rhoE]
-  //   const real_t *q = state.GetData();
+  //   const mfem::real_t *q = state.GetData();
   //   PointStateView S{state.GetData()};
   //   double rho = S.mass(layout);
   //   double rhoU = S.momentum(layout, 0);
@@ -120,9 +120,9 @@ namespace Theseus
   // -----------------------------------------------------------------------------
   struct PointStateView
   {
-    const real_t* U;           // packed state data -> [rho, rhoVx, rhoVy, ..., rhoE]
+    const mfem::real_t* U;           // packed state data -> [rho, rhoVx, rhoVy, ..., rhoE]
     
-    MFEM_HOST_DEVICE explicit PointStateView(const real_t* U_)
+    MFEM_HOST_DEVICE explicit PointStateView(const mfem::real_t* U_)
       : U(U_)
     { }
 
@@ -132,63 +132,63 @@ namespace Theseus
     }
  
     // Mass / density
-    MFEM_HOST_DEVICE inline real_t mass(const StateLayout &L) const
+    MFEM_HOST_DEVICE inline mfem::real_t mass(const StateLayout &L) const
     {
-      const real_t rho = U[ L.eq_mass ];
+      const mfem::real_t rho = U[ L.eq_mass ];
       return rho;
     }
  
     // Momentum components: d = 0(x),1(y),2(z)
-    MFEM_HOST_DEVICE inline real_t momentum(const StateLayout &L, int d) const
+    MFEM_HOST_DEVICE inline mfem::real_t momentum(const StateLayout &L, int d) const
     {
       assert(d < L.dim);
       return U[ L.eq_mom[d] ];
     }
     
-    MFEM_HOST_DEVICE inline real_t momentum_x(const StateLayout &L) const
+    MFEM_HOST_DEVICE inline mfem::real_t momentum_x(const StateLayout &L) const
     {
       return momentum(L, 0);
     }
     
-    MFEM_HOST_DEVICE inline real_t momentum_y(const StateLayout &L) const
+    MFEM_HOST_DEVICE inline mfem::real_t momentum_y(const StateLayout &L) const
     {
       return momentum(L, 1);
     }
     
-    MFEM_HOST_DEVICE inline real_t momentum_z(const StateLayout &L) const
+    MFEM_HOST_DEVICE inline mfem::real_t momentum_z(const StateLayout &L) const
     {
       return momentum(L, 2);
     }
     
     // Velocity components: d = 0(x),1(y),2(z)
-    MFEM_HOST_DEVICE inline real_t velocity(const StateLayout &L, int d) const
+    MFEM_HOST_DEVICE inline mfem::real_t velocity(const StateLayout &L, int d) const
     {
       return momentum(L, d) / mass(L);
     }
 
-    MFEM_HOST_DEVICE inline real_t velocity_x(const StateLayout &L) const
+    MFEM_HOST_DEVICE inline mfem::real_t velocity_x(const StateLayout &L) const
     {
       return momentum_x(L) / mass(L);
     }
 
-    MFEM_HOST_DEVICE inline real_t velocity_y(const StateLayout &L) const
+    MFEM_HOST_DEVICE inline mfem::real_t velocity_y(const StateLayout &L) const
     {
       return momentum_y(L) / mass(L);
     }
     
-    MFEM_HOST_DEVICE inline real_t velocity_z(const StateLayout &L) const
+    MFEM_HOST_DEVICE inline mfem::real_t velocity_z(const StateLayout &L) const
     {
       return momentum_z(L) / mass(L);
     }
     
     // Total energy
-    MFEM_HOST_DEVICE inline real_t energy(const StateLayout &L) const
+    MFEM_HOST_DEVICE inline mfem::real_t energy(const StateLayout &L) const
     {
       return U[ L.eq_energy ];
     }
     
     // Scalar components, if present
-    MFEM_HOST_DEVICE inline real_t scalar(const StateLayout &L, int k) const
+    MFEM_HOST_DEVICE inline mfem::real_t scalar(const StateLayout &L, int k) const
     {
       assert(L.num_scalars > 0);
       assert((k >= 0 && k < L.num_scalars) && "Invalid scalar index");
@@ -211,10 +211,10 @@ namespace Theseus
   // -----------------------------------------------------------------------------
   struct PointStateViewRW
   {
-    real_t* U;                 // packed state data -> [rho, rhoVx, rhoVy, ..., rhoE]
+    mfem::real_t* U;                 // packed state data -> [rho, rhoVx, rhoVy, ..., rhoE]
     
     MFEM_HOST_DEVICE
-    PointStateViewRW(real_t* U_)
+    PointStateViewRW(mfem::real_t* U_)
       : U(U_)
     { }
     
@@ -224,82 +224,82 @@ namespace Theseus
     }
     
     // Mass density
-    MFEM_HOST_DEVICE inline real_t mass(const StateLayout &L) const
+    MFEM_HOST_DEVICE inline mfem::real_t mass(const StateLayout &L) const
     {
-      const real_t rho = U[ L.eq_mass ];
+      const mfem::real_t rho = U[ L.eq_mass ];
       return rho;
     }
     
     // Set Mass density
-    MFEM_HOST_DEVICE inline void set_mass(const StateLayout &L, real_t val)
+    MFEM_HOST_DEVICE inline void set_mass(const StateLayout &L, mfem::real_t val)
     {
       U[ L.eq_mass ] = val;
     }
 
     // Momentum components: d = 0(x),1(y),2(z)
-    MFEM_HOST_DEVICE inline real_t momentum(const StateLayout &L, int d) const
+    MFEM_HOST_DEVICE inline mfem::real_t momentum(const StateLayout &L, int d) const
     {
       assert(d < L.dim);
       return U[ L.eq_mom[d] ];
     }
     
     // Set Momentum components: d = 0(x),1(y),2(z)
-    MFEM_HOST_DEVICE inline void set_momentum(const StateLayout &L, int d, real_t val)
+    MFEM_HOST_DEVICE inline void set_momentum(const StateLayout &L, int d, mfem::real_t val)
     {
       assert(d < L.dim);
       U[ L.eq_mom[d] ] = val;
     }
 
-    MFEM_HOST_DEVICE inline real_t momentum_x(const StateLayout &L) const
+    MFEM_HOST_DEVICE inline mfem::real_t momentum_x(const StateLayout &L) const
     {
       return momentum(L, 0);
     }
     
-    MFEM_HOST_DEVICE inline real_t momentum_y(const StateLayout &L) const
+    MFEM_HOST_DEVICE inline mfem::real_t momentum_y(const StateLayout &L) const
     {
       return momentum(L, 1);
     }
     
-    MFEM_HOST_DEVICE inline real_t momentum_z(const StateLayout &L) const
+    MFEM_HOST_DEVICE inline mfem::real_t momentum_z(const StateLayout &L) const
     {
       return momentum(L, 2);
     }
     
     // Velocity components: d = 0(x),1(y),2(z)
-    MFEM_HOST_DEVICE inline real_t velocity(const StateLayout &L, int d) const
+    MFEM_HOST_DEVICE inline mfem::real_t velocity(const StateLayout &L, int d) const
     {
       return momentum(L, d) / mass(L);
     }
 
-    MFEM_HOST_DEVICE inline real_t velocity_x(const StateLayout &L) const
+    MFEM_HOST_DEVICE inline mfem::real_t velocity_x(const StateLayout &L) const
     {
       return momentum_x(L) / mass(L);
     }
 
-    MFEM_HOST_DEVICE inline real_t velocity_y(const StateLayout &L) const
+    MFEM_HOST_DEVICE inline mfem::real_t velocity_y(const StateLayout &L) const
     {
       return momentum_y(L) / mass(L);
     }
     
-    MFEM_HOST_DEVICE inline real_t velocity_z(const StateLayout &L) const
+    MFEM_HOST_DEVICE inline mfem::real_t velocity_z(const StateLayout &L) const
     {
       return momentum_z(L) / mass(L);
     }
     
     // Total energy
-    MFEM_HOST_DEVICE inline real_t energy(const StateLayout &L) const
+    MFEM_HOST_DEVICE inline mfem::real_t energy(const StateLayout &L) const
     {
       return U[ L.eq_energy ];
     }
     
     // Set Total energy
-    MFEM_HOST_DEVICE inline void set_energy(const StateLayout &L, real_t val)
+    MFEM_HOST_DEVICE inline void set_energy(const StateLayout &L, mfem::real_t val)
     {
       U[ L.eq_energy ] = val;
     }
 
     // Scalar components, if present
-    MFEM_HOST_DEVICE inline real_t scalar(const StateLayout &L, int k) const
+    MFEM_HOST_DEVICE inline mfem::real_t scalar(const StateLayout &L, int k) const
     {
       assert(L.num_scalars > 0);
       assert((k >= 0 && k < L.num_scalars) && "Invalid scalar index");
@@ -307,7 +307,7 @@ namespace Theseus
     }
 
     // Set Scalar components, if present
-    MFEM_HOST_DEVICE inline void set_scalar(const StateLayout &L, int k, real_t val)
+    MFEM_HOST_DEVICE inline void set_scalar(const StateLayout &L, int k, mfem::real_t val)
     {
       assert(L.num_scalars > 0);
       assert((k >= 0 && k < L.num_scalars) && "Invalid scalar index");
@@ -332,10 +332,10 @@ namespace Theseus
   // -----------------------------------------------------------------------------
   struct PointPrimitiveView
   {
-    const real_t* U;           // packed state data -> [rho, rhoVx, rhoVy, ..., rhoE]
+    const mfem::real_t* U;           // packed state data -> [rho, rhoVx, rhoVy, ..., rhoE]
     
     MFEM_HOST_DEVICE
-    PointPrimitiveView(const real_t* U_)
+    PointPrimitiveView(const mfem::real_t* U_)
       : U(U_)
     { }
     
@@ -345,9 +345,9 @@ namespace Theseus
     }
 
     // Mass / density
-    MFEM_HOST_DEVICE inline real_t mass(const StateLayout &L) const
+    MFEM_HOST_DEVICE inline mfem::real_t mass(const StateLayout &L) const
     {
-      const real_t rho = U[ L.eq_mass ];
+      const mfem::real_t rho = U[ L.eq_mass ];
       return rho;
     }
     
@@ -357,34 +357,34 @@ namespace Theseus
       return L.eq_mom0;
     }
     // Momentum components: d = 0(x),1(y),2(z)
-    MFEM_HOST_DEVICE inline real_t velocity(const StateLayout &L, int d) const
+    MFEM_HOST_DEVICE inline mfem::real_t velocity(const StateLayout &L, int d) const
     {
       assert(d < L.dim);
       return U[ L.eq_mom[d] ];
     }
     
-    MFEM_HOST_DEVICE inline real_t velocity_x(const StateLayout &L) const
+    MFEM_HOST_DEVICE inline mfem::real_t velocity_x(const StateLayout &L) const
     {
       return velocity(L, 0);
     }
     
-    MFEM_HOST_DEVICE inline real_t velocity_y(const StateLayout &L) const
+    MFEM_HOST_DEVICE inline mfem::real_t velocity_y(const StateLayout &L) const
     {
       return velocity(L, 1);
     }
     
-    MFEM_HOST_DEVICE inline real_t velocity_z(const StateLayout &L) const
+    MFEM_HOST_DEVICE inline mfem::real_t velocity_z(const StateLayout &L) const
     {
       return velocity(L, 2);
     }
 
-    MFEM_HOST_DEVICE inline real_t pressure(const StateLayout &L) const
+    MFEM_HOST_DEVICE inline mfem::real_t pressure(const StateLayout &L) const
     {
       return U[ L.eq_energy ];
     }
     
     // Scalar components, if present
-    MFEM_HOST_DEVICE inline real_t scalar(const StateLayout &L, int k) const
+    MFEM_HOST_DEVICE inline mfem::real_t scalar(const StateLayout &L, int k) const
     {
       assert(L.num_scalars > 0);
       assert((k >= 0 && k < L.num_scalars) && "Invalid scalar index");
@@ -409,10 +409,10 @@ namespace Theseus
   // -----------------------------------------------------------------------------
   struct PointPrimitiveViewRW
   {
-    real_t* U;                 // packed state data -> [rho, rhoVx, rhoVy, ..., rhoE]
+    mfem::real_t* U;                 // packed state data -> [rho, rhoVx, rhoVy, ..., rhoE]
     
     MFEM_HOST_DEVICE
-    PointPrimitiveViewRW(real_t* U_) : U(U_) { }
+    PointPrimitiveViewRW(mfem::real_t* U_) : U(U_) { }
 
     MFEM_HOST_DEVICE inline bool is_valid() const
     {
@@ -420,14 +420,14 @@ namespace Theseus
     }
 
     // Mass density
-    MFEM_HOST_DEVICE inline real_t mass(const StateLayout &L) const
+    MFEM_HOST_DEVICE inline mfem::real_t mass(const StateLayout &L) const
     {
-      const real_t rho = U[ L.eq_mass ];
+      const mfem::real_t rho = U[ L.eq_mass ];
       return rho;
     }
     
     // Set Mass density
-    MFEM_HOST_DEVICE inline void set_mass(const StateLayout &L, real_t val)
+    MFEM_HOST_DEVICE inline void set_mass(const StateLayout &L, mfem::real_t val)
     {
       U[ L.eq_mass ] = val;
     }
@@ -439,46 +439,46 @@ namespace Theseus
     }
 
     // Momentum components: d = 0(x),1(y),2(z)
-    MFEM_HOST_DEVICE inline real_t velocity(const StateLayout &L, int d) const
+    MFEM_HOST_DEVICE inline mfem::real_t velocity(const StateLayout &L, int d) const
     {
       assert(d < L.dim);
       return U[ L.eq_mom[d] ];
     }
     
     // Set Momentum components: d = 0(x),1(y),2(z)
-    MFEM_HOST_DEVICE inline void set_velocity(const StateLayout &L, int d, real_t val)
+    MFEM_HOST_DEVICE inline void set_velocity(const StateLayout &L, int d, mfem::real_t val)
     {
       assert(d < L.dim);
       U[ L.eq_mom[d] ] = val;
     }
 
-    MFEM_HOST_DEVICE inline real_t velocity_x(const StateLayout &L) const
+    MFEM_HOST_DEVICE inline mfem::real_t velocity_x(const StateLayout &L) const
     {
       return velocity(L, 0);
     }
     
-    MFEM_HOST_DEVICE inline real_t velocity_y(const StateLayout &L) const
+    MFEM_HOST_DEVICE inline mfem::real_t velocity_y(const StateLayout &L) const
     {
       return velocity(L, 1);
     }
     
-    MFEM_HOST_DEVICE inline real_t velocity_z(const StateLayout &L) const
+    MFEM_HOST_DEVICE inline mfem::real_t velocity_z(const StateLayout &L) const
     {
       return velocity(L, 2);
     }
     
-    MFEM_HOST_DEVICE inline real_t pressure(const StateLayout &L) const
+    MFEM_HOST_DEVICE inline mfem::real_t pressure(const StateLayout &L) const
     {
       return U[ L.eq_energy ];
     }
     
-    MFEM_HOST_DEVICE inline void set_pressure(const StateLayout &L, real_t val)
+    MFEM_HOST_DEVICE inline void set_pressure(const StateLayout &L, mfem::real_t val)
     {
       U[ L.eq_energy ] = val;
     }
 
     // Scalar components, if present
-    MFEM_HOST_DEVICE inline real_t scalar(const StateLayout &L, int k) const
+    MFEM_HOST_DEVICE inline mfem::real_t scalar(const StateLayout &L, int k) const
     {
       assert(L.num_scalars > 0);
       assert((k >= 0 && k < L.num_scalars) && "Invalid scalar index");
@@ -486,7 +486,7 @@ namespace Theseus
     }
 
     // Set Scalar components, if present
-    MFEM_HOST_DEVICE inline void set_scalar(const StateLayout &L, int k, real_t val)
+    MFEM_HOST_DEVICE inline void set_scalar(const StateLayout &L, int k, mfem::real_t val)
     {
       assert(L.num_scalars > 0);
       assert((k >= 0 && k < L.num_scalars) && "Invalid scalar index");
@@ -513,11 +513,11 @@ namespace Theseus
   // -----------------------------------------------------------------------------
   struct DofStateView
   {
-    const real_t* U;           // pointer into equation-blocked storage
+    const mfem::real_t* U;           // pointer into equation-blocked storage
     int dof;                   // which DOF (0 .. num_dofs_scalar-1)
     
     MFEM_HOST_DEVICE
-    DofStateView(const real_t* U_,
+    DofStateView(const mfem::real_t* U_,
                  int dof_)
       : U(U_), dof(dof_)
     { }
@@ -528,63 +528,63 @@ namespace Theseus
     }
 
     // Mass / density
-    MFEM_HOST_DEVICE inline real_t mass(const StateLayout &L) const
+    MFEM_HOST_DEVICE inline mfem::real_t mass(const StateLayout &L) const
     {
-      const real_t rho = U[ L.index(L.eq_mass, dof) ];
+      const mfem::real_t rho = U[ L.index(L.eq_mass, dof) ];
       return rho;
     }
     
     // Momentum components: d = 0(x),1(y),2(z)
-    MFEM_HOST_DEVICE inline real_t momentum(const StateLayout &L, int d) const
+    MFEM_HOST_DEVICE inline mfem::real_t momentum(const StateLayout &L, int d) const
     {
       assert(d < L.dim);
       return U[ L.index(L.eq_mom[d], dof) ];
     }
     
-    MFEM_HOST_DEVICE inline real_t momentum_x(const StateLayout &L) const
+    MFEM_HOST_DEVICE inline mfem::real_t momentum_x(const StateLayout &L) const
     {
       return momentum(L, 0);
     }
     
-    MFEM_HOST_DEVICE inline real_t momentum_y(const StateLayout &L) const
+    MFEM_HOST_DEVICE inline mfem::real_t momentum_y(const StateLayout &L) const
     {
       return momentum(L, 1);
     }
     
-    MFEM_HOST_DEVICE inline real_t momentum_z(const StateLayout &L) const
+    MFEM_HOST_DEVICE inline mfem::real_t momentum_z(const StateLayout &L) const
     {
       return momentum(L, 2);
     }
     
     // Velocity components: d = 0(x),1(y),2(z)
-    MFEM_HOST_DEVICE inline real_t velocity(const StateLayout &L, int d) const
+    MFEM_HOST_DEVICE inline mfem::real_t velocity(const StateLayout &L, int d) const
     {
       return momentum(L, d) / mass(L);
     }
 
-    MFEM_HOST_DEVICE inline real_t velocity_x(const StateLayout &L) const
+    MFEM_HOST_DEVICE inline mfem::real_t velocity_x(const StateLayout &L) const
     {
       return velocity(L, 0);
     }
 
-    MFEM_HOST_DEVICE inline real_t velocity_y(const StateLayout &L) const
+    MFEM_HOST_DEVICE inline mfem::real_t velocity_y(const StateLayout &L) const
     {
       return velocity(L, 1);
     }
     
-    MFEM_HOST_DEVICE inline real_t velocity_z(const StateLayout &L) const
+    MFEM_HOST_DEVICE inline mfem::real_t velocity_z(const StateLayout &L) const
     {
       return velocity(L, 2);
     }
     
     // Total energy
-    MFEM_HOST_DEVICE inline real_t energy(const StateLayout &L) const
+    MFEM_HOST_DEVICE inline mfem::real_t energy(const StateLayout &L) const
     {
       return U[ L.index(L.eq_energy, dof) ];
     }
     
     // Scalar components, if present
-    MFEM_HOST_DEVICE inline real_t scalar(const StateLayout &L, int k) const
+    MFEM_HOST_DEVICE inline mfem::real_t scalar(const StateLayout &L, int k) const
     {
       assert(L.num_scalars > 0);
       assert(k >= 0 && k < L.num_scalars && "Invalid scalar index");
@@ -595,16 +595,16 @@ namespace Theseus
   // -----------------------------------------------------------------------------
   // FieldStateView: Field-level view.
   //
-  // Wraps a real_t* + StateLayout and provides equation-blocked access over all DOFs.
+  // Wraps a mfem::real_t* + StateLayout and provides equation-blocked access over all DOFs.
   // For use in loops that already use (eq, i) patterns, or when needing more general
   // mechanism than DofStateView.
   // -----------------------------------------------------------------------------
   struct FieldStateView
   {
-    real_t* data;                // raw pointer to equation-blocked storage
+    mfem::real_t* data;                // raw pointer to equation-blocked storage
     
     MFEM_HOST_DEVICE
-    FieldStateView(real_t* data_) : data(data_) { }
+    FieldStateView(mfem::real_t* data_) : data(data_) { }
 
     MFEM_HOST_DEVICE inline bool is_valid() const
     {
@@ -612,63 +612,63 @@ namespace Theseus
     }
     
     // Generic access by (equation, dof)
-    MFEM_HOST_DEVICE inline real_t& u(const StateLayout &layout, int equation, int dof) const
+    MFEM_HOST_DEVICE inline mfem::real_t& u(const StateLayout &layout, int equation, int dof) const
     {
       return data[ layout.index(equation, dof) ];
     }
     
     // Named accessors for convenience
-    MFEM_HOST_DEVICE inline real_t& mass(const StateLayout &layout, int dof) const
+    MFEM_HOST_DEVICE inline mfem::real_t& mass(const StateLayout &layout, int dof) const
     {
       return u(layout, layout.eq_mass, dof);
     }
     
-    MFEM_HOST_DEVICE inline real_t& momentum(const StateLayout &layout, int component, int dof) const
+    MFEM_HOST_DEVICE inline mfem::real_t& momentum(const StateLayout &layout, int component, int dof) const
     {
       return u(layout, layout.eq_mom[component], dof);
     }
     
-    MFEM_HOST_DEVICE inline real_t& momentum_x(const StateLayout &layout, int dof) const
+    MFEM_HOST_DEVICE inline mfem::real_t& momentum_x(const StateLayout &layout, int dof) const
     {
       return u(layout, layout.eq_mom[0], dof);
     }
     
-    MFEM_HOST_DEVICE inline real_t& momentum_y(const StateLayout &layout, int dof) const
+    MFEM_HOST_DEVICE inline mfem::real_t& momentum_y(const StateLayout &layout, int dof) const
     {
       return u(layout, layout.eq_mom[1], dof);
     }
     
-    MFEM_HOST_DEVICE inline real_t& momentum_z(const StateLayout &layout, int dof) const
+    MFEM_HOST_DEVICE inline mfem::real_t& momentum_z(const StateLayout &layout, int dof) const
     {
       return u(layout, layout.eq_mom[2], dof);
     }
     
-    MFEM_HOST_DEVICE inline real_t velocity(const StateLayout &layout, int component, int dof) const
+    MFEM_HOST_DEVICE inline mfem::real_t velocity(const StateLayout &layout, int component, int dof) const
     {
       return momentum(layout, component, dof) / mass(layout, dof);
     }
     
-    MFEM_HOST_DEVICE inline real_t velocity_x(const StateLayout &layout, int dof) const
+    MFEM_HOST_DEVICE inline mfem::real_t velocity_x(const StateLayout &layout, int dof) const
     {
       return velocity(layout, 0, dof);
     }
     
-    MFEM_HOST_DEVICE inline real_t velocity_y(const StateLayout &layout, int dof) const
+    MFEM_HOST_DEVICE inline mfem::real_t velocity_y(const StateLayout &layout, int dof) const
     {
       return velocity(layout, 1, dof);
     }
     
-    MFEM_HOST_DEVICE inline real_t velocity_z(const StateLayout &layout, int dof) const
+    MFEM_HOST_DEVICE inline mfem::real_t velocity_z(const StateLayout &layout, int dof) const
     {
       return velocity(layout, 2, dof);
     }
     
-    MFEM_HOST_DEVICE inline real_t& energy(const StateLayout &layout, int dof) const
+    MFEM_HOST_DEVICE inline mfem::real_t& energy(const StateLayout &layout, int dof) const
     {
       return u(layout, layout.eq_energy, dof);
     }
     
-    MFEM_HOST_DEVICE inline real_t& scalar(const StateLayout &layout, int k, int dof) const
+    MFEM_HOST_DEVICE inline mfem::real_t& scalar(const StateLayout &layout, int k, int dof) const
     {
       assert(layout.num_scalars > 0);
       assert(k >= 0 && k < layout.num_scalars && "Invalid scalar index");

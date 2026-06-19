@@ -465,20 +465,20 @@ namespace Theseus
         alpha_max = 0.5;
       }
 #endif
-    std::string gas_model_string =
-      to_lower(runtime.value("gas_model", std::string{}));
+    std::string gas_model_string(to_lower(runtime.value("gas_model", std::string{})));
+
     if(gas_model_string == "lte"){ // Then initialize the LTE tables
-      mixture  = runtime.value("gas_mixture", "air5");
-      solver   = runtime.value("plato_solver", "LTE_table_rhoT_(air5)");
-      path     = runtime.value("database_path", "");
-      N_rho    = runtime.value("N_rho", 101);
-      N_T      = runtime.value("N_T", 101);
-      rho_min  = runtime.value("rho_min", 0.1);
-      rho_max  = runtime.value("rho_max", 1.1);
-      T_min    = runtime.value("T_min", 250.0);
-      T_max    = runtime.value("T_max", 35.0);
-      rho_dist = runtime.value("rho_dist", "log");
-      T_dist   = runtime.value("T_dist", "log");
+      std::string mixture(runtime.value("gas_mixture", "air5"));
+      std::string solver(runtime.value("plato_solver", "LTE_table_rhoT_(air5)"));
+      std::string path(runtime.value("database_path", ""));
+      std::string rho_dist(runtime.value("rho_dist", "log"));
+      std::string T_dist(runtime.value("T_dist", "log"));
+      int N_rho    = runtime.value("N_rho", 101);
+      int N_T      = runtime.value("N_T", 101);
+      mfem::real_t rho_min  = runtime.value("rho_min", 0.1);
+      mfem::real_t rho_max  = runtime.value("rho_max", 1.1);
+      mfem::real_t T_min    = runtime.value("T_min", 250.0);
+      mfem::real_t T_max    = runtime.value("T_max", 35.0);
       int num_properties = 9; // CL NOTE : Check LTE EOS
 
       lteTableData.lte_table.SetSize(N_rho * N_T * num_properties);
@@ -503,7 +503,7 @@ namespace Theseus
       lteTableData.e_grid.SetSize(N_T);
       lteTables.L.setup(N_rho, N_T);
 #ifdef USE_PLATO
-      if(Mpi::Root())
+      if(mfem::Mpi::Root())
 	{
 	  std::cout << "Constructing LTE table for " << mixture
 		    << " with solver " << solver << std::endl;
@@ -518,7 +518,7 @@ namespace Theseus
 	  plato_finalize();
 	}
 #else
-      if(Mpi::Root()){
+      if(mfem::Mpi::Root()){
 	std::cerr << "LTE runs *must* have plato support." << std::endl;
       }
       return 1;

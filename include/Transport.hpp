@@ -16,14 +16,14 @@ namespace Theseus
     
     template<typename EOSType, typename StateViewType>
     MFEM_HOST_DEVICE
-    inline real_t viscosity(const PhysicsConstants &phys, const StateLayout &L,
+    inline mfem::real_t viscosity(const PhysicsConstants &phys, const StateLayout &L,
                             const EOSType &eos, const StateViewType &S) const
     {
 #ifdef SUTHERLAND
       // mu0 * T0pTs / (T + Ts) * (T / T0) * std::sqrt(T / T0);
-      const real_t temptr = eos.temperature(phys, L, S);
-      const real_t Trel = temptr / phys.T0;
-      const real_t T0pTs = phys.T0 + phys.Ts;
+      const mfem::real_t temptr = eos.temperature(phys, L, S);
+      const mfem::real_t Trel = temptr / phys.T0;
+      const mfem::real_t T0pTs = phys.T0 + phys.Ts;
       return phys.mu0 * T0pTs * Trel * std::sqrt(Trel) / (temptr + phys.Ts);
 #else
       return phys.mu;
@@ -32,7 +32,7 @@ namespace Theseus
 
     template<typename EOSType, typename StateViewType>
     MFEM_HOST_DEVICE
-    inline real_t bulk_viscosity(const PhysicsConstants &phys, const StateLayout &L,
+    inline mfem::real_t bulk_viscosity(const PhysicsConstants &phys, const StateLayout &L,
                                  const EOSType &eos, const StateViewType &S) const
     {
       return phys.mu_bulk;
@@ -41,7 +41,7 @@ namespace Theseus
     // Thermal cond kappa = mu * cp / Pr
     template<typename EOSType, typename StateViewType>
     MFEM_HOST_DEVICE
-    inline real_t thermal_conductivity(const PhysicsConstants &phys, const StateLayout &L,
+    inline mfem::real_t thermal_conductivity(const PhysicsConstants &phys, const StateLayout &L,
                                        const EOSType &eos, const StateViewType &S) const
     {
       return viscosity(phys, L, eos, S) * eos.cp(phys, L, S) * phys.PrInverse;
