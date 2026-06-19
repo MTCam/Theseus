@@ -33,6 +33,12 @@ namespace Theseus
       : phys(phys_in), L(L_in)
     { };
 
+    template<typename HostDataT>
+    MFEM_HOST_DEVICE GasModel<EOSImpl, TransportImpl> to_device(HostDataT &host_data) {
+      GasModel<EOSImpl, TransportImpl> retVal(phys,L,eos,transport);
+      return retVal;
+    }
+
     // Utilities and constants etc
     MFEM_HOST_DEVICE
     inline int num_equations() const

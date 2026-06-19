@@ -3,7 +3,6 @@
 #include "Theseus.hpp"
 #include "RHSOperator.hpp"
 #include "Indicator.hpp"
-#include "LTETable.hpp"
 
 namespace Theseus
 {
@@ -96,8 +95,6 @@ namespace Theseus
 
     std::shared_ptr<mfem::ODESolver> ode_solver;
     std::unique_ptr<Theseus::RHSOperatorBase> rhsOp;
-    Theseus::LTETableData lteTableData;
-    Theseus::LTETables    lteTables;
 
     int signature;
   
