@@ -5,7 +5,7 @@
 #include "GasState.hpp"
 #include "gas_state_adapter.hpp"
 
-using real_t = Theseus::real_t;
+using real_t = mfem::real_t;
 
 TEST(LegacyState_MassMomentumEnergy_2D)
 {

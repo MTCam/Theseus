@@ -12,9 +12,9 @@ namespace Theseus
     
     template<typename ContextType>
     MFEM_HOST_DEVICE inline
-    static real_t AssembleElementVolumeKernel(const ContextType &ctx,
-                                              const real_t *el_u, const real_t *elJac_d,
-                                              const real_t *elMetric_d, real_t *el_dudt)
+    static mfem::real_t AssembleElementVolumeKernel(const ContextType &ctx,
+                                              const mfem::real_t *el_u, const mfem::real_t *elJac_d,
+                                              const mfem::real_t *elMetric_d, mfem::real_t *el_dudt)
     {
 
       const int Np_x = ctx.Np_x;
@@ -23,13 +23,13 @@ namespace Theseus
       const int dim = ctx.dim;
       const int neq = ctx.num_equations;
       const int dof = Np_x * Np_y * Np_z;
-      const real_t *Dhat2_d = ctx.Dhat2_d;
+      const mfem::real_t *Dhat2_d = ctx.Dhat2_d;
 
-      real_t f[Theseus::MAXEQ] = {0.,0.,0.,0.,0.};
-      real_t state1[Theseus::MAXEQ];
-      real_t state2[Theseus::MAXEQ];
-      real_t J = 0.0;
-      real_t max_char_speed = 0.0;
+      mfem::real_t f[Theseus::MAXEQ] = {0.,0.,0.,0.,0.};
+      mfem::real_t state1[Theseus::MAXEQ];
+      mfem::real_t state2[Theseus::MAXEQ];
+      mfem::real_t J = 0.0;
+      mfem::real_t max_char_speed = 0.0;
 
       { // X-direction (metric row 0)
         // Zero'ing probably unnecessary: Chandrashekar flux overwrites it every time
@@ -41,18 +41,18 @@ namespace Theseus
                 int id1 = k * Np_y * Np_x + j * Np_x + i;
                 Kernels::el_gather_state(el_u, dof, neq, id1, state1);
                 J = elJac_d[id1];
-                const real_t *met1 = elMetric_d+id1*dim*dim;
+                const mfem::real_t *met1 = elMetric_d+id1*dim*dim;
                 for (int m = i + 1; m < Np_x; m++)
                   {
                     int id2 = k * Np_y * Np_x + j * Np_x + m;
                     Kernels::el_gather_state(el_u, dof, neq, id2, state2);
-                    const real_t *met2 = elMetric_d + id2*dim*dim;
+                    const mfem::real_t *met2 = elMetric_d + id2*dim*dim;
 
-                    const real_t cs = ctx.iflux.ComputeVolumeFlux(ctx.gas, state1, state2, met1, met2, f);
+                    const mfem::real_t cs = ctx.iflux.ComputeVolumeFlux(ctx.gas, state1, state2, met1, met2, f);
                     max_char_speed = Kernels::rmax(cs, max_char_speed);
 
-                    const real_t c1 = Dhat2_d[m + Np_x*i];
-                    const real_t c2 = Dhat2_d[i + Np_x*m];
+                    const mfem::real_t c1 = Dhat2_d[m + Np_x*i];
+                    const mfem::real_t c2 = Dhat2_d[i + Np_x*m];
                     Kernels::el_scatter_add(f, dof, neq, id1, c1, el_dudt);
                     Kernels::el_scatter_add(f, dof, neq, id2, c2, el_dudt);
 
@@ -68,19 +68,19 @@ namespace Theseus
               {
                 const int id1 = k*Np_y*Np_x + j*Np_x + i;
                 Kernels::el_gather_state(el_u, dof, neq, id1, state1);
-                const real_t *met1 = elMetric_d + id1*dim*dim + 1*dim;
+                const mfem::real_t *met1 = elMetric_d + id1*dim*dim + 1*dim;
 
                 for (int m = j+1; m < Np_y; ++m)
                   {
                     const int id2 = k*Np_y*Np_x + m*Np_x + i;
                     Kernels::el_gather_state(el_u, dof, neq, id2, state2);
-                    const real_t *met2 = elMetric_d + id2*dim*dim + dim;
+                    const mfem::real_t *met2 = elMetric_d + id2*dim*dim + dim;
                     // ComputeVolumeFlux *overwrites* f, so don't worry about reuse
-                    const real_t cs = ctx.iflux.ComputeVolumeFlux(ctx.gas, state1, state2, met1, met2, f);
+                    const mfem::real_t cs = ctx.iflux.ComputeVolumeFlux(ctx.gas, state1, state2, met1, met2, f);
                     max_char_speed = Kernels::rmax(max_char_speed, cs);
 
-                    const real_t c1 = Dhat2_d[m + Np_y*j]; // column j, entry m
-                    const real_t c2 = Dhat2_d[j + Np_y*m]; // column m, entry j
+                    const mfem::real_t c1 = Dhat2_d[m + Np_y*j]; // column j, entry m
+                    const mfem::real_t c2 = Dhat2_d[j + Np_y*m]; // column m, entry j
                     Kernels::el_scatter_add(f, dof, neq, id1, c1, el_dudt);
                     Kernels::el_scatter_add(f, dof, neq, id2, c2, el_dudt);
 
@@ -95,19 +95,19 @@ namespace Theseus
               {
                 const int id1 = k*Np_y*Np_x + j*Np_x + i;
                 Kernels::el_gather_state(el_u, dof, neq, id1, state1);
-                const real_t *met1 = elMetric_d + id1*dim*dim + 2*dim;
+                const mfem::real_t *met1 = elMetric_d + id1*dim*dim + 2*dim;
 
                 for (int m = k+1; m < Np_z; ++m)
                   {
                     const int id2 = m*Np_y*Np_x + j*Np_x + i;
                     Kernels::el_gather_state(el_u, dof, neq, id2, state2);
-                    const real_t *met2 = elMetric_d + id2*dim*dim + 2*dim;
+                    const mfem::real_t *met2 = elMetric_d + id2*dim*dim + 2*dim;
 
-                    const real_t cs = ctx.iflux.ComputeVolumeFlux(ctx.gas, state1, state2, met1, met2, f);
+                    const mfem::real_t cs = ctx.iflux.ComputeVolumeFlux(ctx.gas, state1, state2, met1, met2, f);
                     max_char_speed = Kernels::rmax(max_char_speed, cs);
 
-                    const real_t c1 = Dhat2_d[m + Np_z*k];
-                    const real_t c2 = Dhat2_d[k + Np_z*m];
+                    const mfem::real_t c1 = Dhat2_d[m + Np_z*k];
+                    const mfem::real_t c2 = Dhat2_d[k + Np_z*m];
                     Kernels::el_scatter_add(f, dof, neq, id1, c1, el_dudt);
                     Kernels::el_scatter_add(f, dof, neq, id2, c2, el_dudt);
                   }
@@ -120,14 +120,14 @@ namespace Theseus
     }
 
     template<typename ContextT>
-    MFEM_HOST_DEVICE static real_t AssembleElementFaceKernel(const ContextT &ctx, const real_t *u_face,
-                                                             const real_t *nor_face,const real_t *w_minus,
-                                                             const real_t *w_plus, real_t *rhs_face)
+    MFEM_HOST_DEVICE static mfem::real_t AssembleElementFaceKernel(const ContextT &ctx, const mfem::real_t *u_face,
+                                                             const mfem::real_t *nor_face,const mfem::real_t *w_minus,
+                                                             const mfem::real_t *w_plus, mfem::real_t *rhs_face)
     { // TODO: Fix hard-coded sizes (5)
-      real_t max_char_speed = 0.0;
-      real_t point_flux[5];
-      real_t qMinus[5];
-      real_t qPlus[5];
+      mfem::real_t max_char_speed = 0.0;
+      mfem::real_t point_flux[5];
+      mfem::real_t qMinus[5];
+      mfem::real_t qPlus[5];
       const int nfp = ctx.num_face_points;
       const int neq = ctx.num_equations;
       const int dim = ctx.dim;
@@ -137,9 +137,9 @@ namespace Theseus
       // };
       for (int i = 0; i < nfp; i++)
         {
-          const real_t *nor_d = nor_face + i*dim;
-          const real_t wminus = -w_minus[i];
-          const real_t wplus = w_plus[i];
+          const mfem::real_t *nor_d = nor_face + i*dim;
+          const mfem::real_t wminus = -w_minus[i];
+          const mfem::real_t wplus = w_plus[i];
           // Could avoid these copy-in,out 
           for(int j = 0;j < neq;j++){
             qMinus[j] = u_face[ctx.iface_idx(0,i,j)];
@@ -156,28 +156,28 @@ namespace Theseus
       // #ifdef AXISYMMETRIC
       //        mfem::Vector phys(dim);
       //        Tr.Transform(ip, phys);
-      //        real_t r = phys[1]; 
+      //        mfem::real_t r = phys[1]; 
       //        flux_num *= r;
       // #endif
       return max_char_speed;
     }
 
     template<typename ContextT>
-    MFEM_HOST_DEVICE static real_t AssembleViscousElementFaceKernel(const ContextT &ctx, const real_t *u_face,
-                                                                    const real_t *nor_face,const real_t *w_minus,
-                                                                    const real_t *w_plus, const real_t *dprim_face_x,
-                                                                    const real_t *dprim_face_y, const real_t*dprim_face_z,
-                                                                    real_t *rhs_face)
+    MFEM_HOST_DEVICE static mfem::real_t AssembleViscousElementFaceKernel(const ContextT &ctx, const mfem::real_t *u_face,
+                                                                    const mfem::real_t *nor_face,const mfem::real_t *w_minus,
+                                                                    const mfem::real_t *w_plus, const mfem::real_t *dprim_face_x,
+                                                                    const mfem::real_t *dprim_face_y, const mfem::real_t*dprim_face_z,
+                                                                    mfem::real_t *rhs_face)
     { // TODO: Fix hard-coded sizes (5)
-      real_t max_char_speed = 0.0;
-      real_t point_flux[Theseus::MAXEQ];
-      real_t vflux_minus[Theseus::MAXEQ][Theseus::MAXDIM];
-      real_t vflux_plus[Theseus::MAXEQ][Theseus::MAXDIM];
-      real_t qMinus[Theseus::MAXEQ];
-      real_t qPlus[Theseus::MAXEQ];
-      real_t gradPrim_plus[Theseus::MAXDIM][Theseus::MAXEQ];
-      real_t gradPrim_minus[Theseus::MAXDIM][Theseus::MAXEQ];
-      const real_t *dprim_face[Theseus::MAXDIM] = {dprim_face_x, dprim_face_y, dprim_face_z};
+      mfem::real_t max_char_speed = 0.0;
+      mfem::real_t point_flux[Theseus::MAXEQ];
+      mfem::real_t vflux_minus[Theseus::MAXEQ][Theseus::MAXDIM];
+      mfem::real_t vflux_plus[Theseus::MAXEQ][Theseus::MAXDIM];
+      mfem::real_t qMinus[Theseus::MAXEQ];
+      mfem::real_t qPlus[Theseus::MAXEQ];
+      mfem::real_t gradPrim_plus[Theseus::MAXDIM][Theseus::MAXEQ];
+      mfem::real_t gradPrim_minus[Theseus::MAXDIM][Theseus::MAXEQ];
+      const mfem::real_t *dprim_face[Theseus::MAXDIM] = {dprim_face_x, dprim_face_y, dprim_face_z};
       const int nfp = ctx.num_face_points;
       const int neq = ctx.num_equations;
       const int dim = ctx.dim;
@@ -187,9 +187,9 @@ namespace Theseus
       // };
       for (int i = 0; i < nfp; i++)
         {
-          const real_t *nor_d = nor_face + i*dim;
-          const real_t wminus = -w_minus[i];
-          const real_t wplus = w_plus[i];
+          const mfem::real_t *nor_d = nor_face + i*dim;
+          const mfem::real_t wminus = -w_minus[i];
+          const mfem::real_t wplus = w_plus[i];
           // Could avoid these copy-in,out 
           for(int j = 0;j < neq;j++){
             int minus_index = ctx.iface_idx(0, i, j);
@@ -224,7 +224,7 @@ namespace Theseus
           //  - accumulate dotted (avg*n) into point_flux
           for(int j = 0;j < neq;j++){
             for(int idim = 0;idim < dim;idim++){
-              real_t avg = 0.5*(vflux_minus[j][idim] + vflux_plus[j][idim]);
+              mfem::real_t avg = 0.5*(vflux_minus[j][idim] + vflux_plus[j][idim]);
               point_flux[j] -= nor_d[idim]*avg;
             }
           }
@@ -240,20 +240,20 @@ namespace Theseus
       // #ifdef AXISYMMETRIC
       //        mfem::Vector phys(dim);
       //        Tr.Transform(ip, phys);
-      //        real_t r = phys[1]; 
+      //        mfem::real_t r = phys[1]; 
       //        flux_num *= r;
       // #endif
       return max_char_speed;
     }
 
     template<typename ContextT>
-    MFEM_HOST_DEVICE inline static real_t ComputeFVFluxesKernel(const ContextT &ctx,
-                                                                const real_t *el_u,
-                                                                const real_t *elJac,
-                                                                const real_t *el_metric_xi,
-                                                                const real_t *el_metric_eta,
-                                                                const real_t *el_metric_zeta,
-                                                                real_t *el_dudt)
+    MFEM_HOST_DEVICE inline static mfem::real_t ComputeFVFluxesKernel(const ContextT &ctx,
+                                                                const mfem::real_t *el_u,
+                                                                const mfem::real_t *elJac,
+                                                                const mfem::real_t *el_metric_xi,
+                                                                const mfem::real_t *el_metric_eta,
+                                                                const mfem::real_t *el_metric_zeta,
+                                                                mfem::real_t *el_dudt)
     {
       const int dim = ctx.dim;
       const int Np_x = ctx.Np_x;
@@ -262,13 +262,13 @@ namespace Theseus
       const int neq = ctx.num_equations;
       const int npe = Np_x * Np_y * Np_z;
       const int ndofe = npe * neq;
-      const real_t *qWgt = ctx.subcell_weights_d;
+      const mfem::real_t *qWgt = ctx.subcell_weights_d;
 
-      real_t max_char_speed = 0.0;
-      real_t flux_num[5];
-      real_t du_subcell[5];
-      real_t state1_local[5];
-      real_t state2_local[5];
+      mfem::real_t max_char_speed = 0.0;
+      mfem::real_t flux_num[5];
+      mfem::real_t du_subcell[5];
+      mfem::real_t state1_local[5];
+      mfem::real_t state2_local[5];
 
       for (int k = 0; k < Np_z; k++)
         {
@@ -283,7 +283,7 @@ namespace Theseus
                 {
                   int id2 = id1 + 1;
                   Kernels::el_gather_state(el_u, npe, neq, id2, state2_local);
-                  const real_t *nor = el_metric_xi + id2*dim;
+                  const mfem::real_t *nor = el_metric_xi + id2*dim;
 
                   max_char_speed = \
                     Kernels::rmax(max_char_speed,
@@ -328,7 +328,7 @@ namespace Theseus
                       int id2 = k * Np_y * Np_x + (j + 1) * Np_x + i;
                       Kernels::el_gather_state(el_u, npe, neq, id2,
                                                state2_local);
-                      const real_t *nor = el_metric_eta + id2*dim;
+                      const mfem::real_t *nor = el_metric_eta + id2*dim;
                       max_char_speed = \
                         Kernels::rmax(max_char_speed,
                                       ctx.iflux.ComputeFaceFlux(ctx.gas,
@@ -371,7 +371,7 @@ namespace Theseus
                           int id2 = (k + 1) * Np_y * Np_x + j * Np_x + i;
                           Kernels::el_gather_state(el_u, npe, neq, id2,
                                                    state2_local);
-                          const real_t *nor = el_metric_zeta + id2*dim;
+                          const mfem::real_t *nor = el_metric_zeta + id2*dim;
                           max_char_speed = \
                             Kernels::rmax(max_char_speed,
                                           ctx.iflux.ComputeFaceFlux(ctx.gas, state1_local,
@@ -405,13 +405,13 @@ namespace Theseus
     template<typename ContextType>
     MFEM_HOST_DEVICE inline
     static void AssembleViscousElementVolumeKernel(const ContextType &ctx,
-                                                   const real_t *el_u,
-                                                   const real_t *elJac_d,
-                                                   const real_t *elMetric_d,
-                                                   const real_t *el_gradprim_x,
-                                                   const real_t *el_gradprim_y,
-                                                   const real_t *el_gradprim_z,
-                                                   real_t *el_dudt)
+                                                   const mfem::real_t *el_u,
+                                                   const mfem::real_t *elJac_d,
+                                                   const mfem::real_t *elMetric_d,
+                                                   const mfem::real_t *el_gradprim_x,
+                                                   const mfem::real_t *el_gradprim_y,
+                                                   const mfem::real_t *el_gradprim_z,
+                                                   mfem::real_t *el_dudt)
     {
       const int Np_x = ctx.Np_x;
       const int Np_y = ctx.Np_y;
@@ -419,18 +419,18 @@ namespace Theseus
       const int dim  = ctx.dim;
       const int neq  = ctx.num_equations;
       const int dof  = Np_x * Np_y * Np_z;
-      const real_t *Dhat_d = ctx.Dhat_d;
+      const mfem::real_t *Dhat_d = ctx.Dhat_d;
 
       // One source-point scratch
-      real_t state[Theseus::MAXEQ] = {0., 0., 0., 0., 0.};
-      real_t dqx  [Theseus::MAXEQ] = {0., 0., 0., 0., 0.};
-      real_t dqy  [Theseus::MAXEQ] = {0., 0., 0., 0., 0.};
-      real_t dqz  [Theseus::MAXEQ] = {0., 0., 0., 0., 0.};
+      mfem::real_t state[Theseus::MAXEQ] = {0., 0., 0., 0., 0.};
+      mfem::real_t dqx  [Theseus::MAXEQ] = {0., 0., 0., 0., 0.};
+      mfem::real_t dqy  [Theseus::MAXEQ] = {0., 0., 0., 0., 0.};
+      mfem::real_t dqz  [Theseus::MAXEQ] = {0., 0., 0., 0., 0.};
 
       // flux(eq,dir)
-      real_t flux_eq_dir[Theseus::MAXEQ][Theseus::MAXDIM] = {{0.}};
+      mfem::real_t flux_eq_dir[Theseus::MAXEQ][Theseus::MAXDIM] = {{0.}};
       // one transformed reference-direction flux vector
-      real_t f_ref[Theseus::MAXEQ] = {0., 0., 0., 0., 0.};
+      mfem::real_t f_ref[Theseus::MAXEQ] = {0., 0., 0., 0., 0.};
 
       for (int k = 0; k < Np_z; ++k)
         {
@@ -439,23 +439,23 @@ namespace Theseus
               for (int i = 0; i < Np_x; ++i)
                 {
                   const int id1 = k * Np_y * Np_x + j * Np_x + i;
-                  const real_t J = elJac_d[id1];
-                  const real_t jInv = 1.0/J;
+                  const mfem::real_t J = elJac_d[id1];
+                  const mfem::real_t jInv = 1.0/J;
 
-                  real_t dU_viscous[Theseus::MAXEQ] = {0., 0., 0., 0., 0.};
+                  mfem::real_t dU_viscous[Theseus::MAXEQ] = {0., 0., 0., 0., 0.};
 
                   // xi contribution
                   for (int l = 0; l < Np_x; ++l)
                     {
                       const int idl = k * Np_y * Np_x + j * Np_x + l;
-                      const real_t c = Dhat_d[l + Np_x * i];
+                      const mfem::real_t c = Dhat_d[l + Np_x * i];
 
                       Kernels::el_gather_state(el_u, dof, neq, idl, state);
                       Kernels::el_gather_grad_state(el_gradprim_x, el_gradprim_y,
                                                     el_gradprim_z, dim, dof, neq, idl,
                                                     dqx, dqy, dqz);
 
-                      const real_t *adj_row = elMetric_d + idl * dim * dim + 0 * dim;
+                      const mfem::real_t *adj_row = elMetric_d + idl * dim * dim + 0 * dim;
                       Theseus::NavierStokesFlux::compute_ref_viscous_flux(ctx.gas, dim, neq, state, dqx, dqy, dqz,
                                                                           adj_row, f_ref);
                       for (int q = 0; q < neq; ++q)
@@ -470,14 +470,14 @@ namespace Theseus
                       for (int l = 0; l < Np_y; ++l)
                         {
                           const int idl = k * Np_y * Np_x + l * Np_x + i;
-                          const real_t c = Dhat_d[l + Np_y * j];
+                          const mfem::real_t c = Dhat_d[l + Np_y * j];
 
                           Kernels::el_gather_state(el_u, dof, neq, idl, state);
                           Kernels::el_gather_grad_state(el_gradprim_x, el_gradprim_y,
                                                         el_gradprim_z, dim, dof, neq, idl,
                                                         dqx, dqy, dqz);
 
-                          const real_t *adj_row = elMetric_d + idl * dim * dim + 1 * dim;
+                          const mfem::real_t *adj_row = elMetric_d + idl * dim * dim + 1 * dim;
                           Theseus::NavierStokesFlux::compute_ref_viscous_flux(ctx.gas, dim, neq, state,
                                                                               dqx, dqy, dqz,
                                                                               adj_row, f_ref);
@@ -495,14 +495,14 @@ namespace Theseus
                       for (int l = 0; l < Np_z; ++l)
                         {
                           const int idl = l * Np_y * Np_x + j * Np_x + i;
-                          const real_t c = Dhat_d[l + Np_z * k];
+                          const mfem::real_t c = Dhat_d[l + Np_z * k];
 
                           Kernels::el_gather_state(el_u, dof, neq, idl, state);
                           Kernels::el_gather_grad_state(el_gradprim_x, el_gradprim_y,
                                                         el_gradprim_z, dim, dof, neq, idl,
                                                         dqx, dqy, dqz);
 
-                          const real_t *adj_row = elMetric_d + idl * dim * dim + 2 * dim;
+                          const mfem::real_t *adj_row = elMetric_d + idl * dim * dim + 2 * dim;
                           Theseus::NavierStokesFlux::compute_ref_viscous_flux(ctx.gas, dim, neq, state,
                                                                               dqx, dqy, dqz,
                                                                               adj_row, f_ref);
@@ -522,10 +522,10 @@ namespace Theseus
     template <typename ContextType>
     MFEM_HOST_DEVICE inline
     static void AssembleGradElementVolumeKernel(const ContextType &ctx,
-                                                const real_t *el_u,
-                                                const real_t *elJac_d,
-                                                const real_t *elMetric_d,
-                                                real_t *el_grad_u[Theseus::MAXDIM])
+                                                const mfem::real_t *el_u,
+                                                const mfem::real_t *elJac_d,
+                                                const mfem::real_t *elMetric_d,
+                                                mfem::real_t *el_grad_u[Theseus::MAXDIM])
     {
       const int Np_x = ctx.Np_x;
       const int Np_y = ctx.Np_y;
@@ -533,12 +533,12 @@ namespace Theseus
       const int neq  = ctx.num_equations;
       const int dim  = ctx.dim;
       const int dof  = Np_x * Np_y * Np_z;
-      const real_t *D_d = ctx.D_d;
+      const mfem::real_t *D_d = ctx.D_d;
 
       if(dim == 1){
 
         // Keep MAX_EQ in mind later if neq can exceed 5.
-        real_t dudxi[Theseus::MAXEQ];
+        mfem::real_t dudxi[Theseus::MAXEQ];
 
         for (int i = 0; i < Np_x; ++i)
           {
@@ -552,7 +552,7 @@ namespace Theseus
             for (int l = 0; l < Np_x; ++l)
               {
                 const int id_x = l;
-                const real_t c_xi  = D_d[i*Np_x + l]; // legacy D_T(l, i)
+                const mfem::real_t c_xi  = D_d[i*Np_x + l]; // legacy D_T(l, i)
 
                 for (int q = 0; q < neq; ++q)
                   {
@@ -560,8 +560,8 @@ namespace Theseus
                   }
               }
 
-            const real_t invJ = 1.0 / elJac_d[id];
-            const real_t *adj = elMetric_d + id * dim * dim;
+            const mfem::real_t invJ = 1.0 / elJac_d[id];
+            const mfem::real_t *adj = elMetric_d + id * dim * dim;
 
             for (int q = 0; q < neq; ++q)
               {
@@ -570,8 +570,8 @@ namespace Theseus
           }
       } else if(dim == 2){
         // Keep MAX_EQ in mind later if neq can exceed 5.
-        real_t dudxi[Theseus::MAXEQ];
-        real_t dudeta[Theseus::MAXEQ];
+        mfem::real_t dudxi[Theseus::MAXEQ];
+        mfem::real_t dudeta[Theseus::MAXEQ];
 
         for (int j = 0; j < Np_y; ++j)
           {
@@ -591,8 +591,8 @@ namespace Theseus
                     const int id_x = j * Np_x + l;
                     const int id_y = l * Np_x + i;
 
-                    const real_t c_xi  = D_d[l + Np_x * i]; // legacy D_T(l,i)
-                    const real_t c_eta = D_d[l + Np_x * j]; // legacy D_T(l,j)
+                    const mfem::real_t c_xi  = D_d[l + Np_x * i]; // legacy D_T(l,i)
+                    const mfem::real_t c_eta = D_d[l + Np_x * j]; // legacy D_T(l,j)
 
                     for (int q = 0; q < neq; ++q)
                       {
@@ -601,8 +601,8 @@ namespace Theseus
                       }
                   }
 
-                const real_t invJ = 1.0 / elJac_d[id];
-                const real_t *adj = elMetric_d + id * dim * dim;
+                const mfem::real_t invJ = 1.0 / elJac_d[id];
+                const mfem::real_t *adj = elMetric_d + id * dim * dim;
 
                 // adj stored row-major per point:
                 // [ adj[0] adj[1] ]
@@ -616,9 +616,9 @@ namespace Theseus
           }
       } else if (dim == 3) {
 
-        real_t dudxi[Theseus::MAXEQ];
-        real_t dudeta[Theseus::MAXEQ];
-        real_t dudzeta[Theseus::MAXEQ];
+        mfem::real_t dudxi[Theseus::MAXEQ];
+        mfem::real_t dudeta[Theseus::MAXEQ];
+        mfem::real_t dudzeta[Theseus::MAXEQ];
 
         for (int k = 0; k < Np_z; ++k)
           {
@@ -641,9 +641,9 @@ namespace Theseus
                         const int id_x = k * Np_x * Np_y + j * Np_x + l;
                         const int id_y = k * Np_x * Np_y + l * Np_x + i;
                         const int id_z = l * Np_x * Np_y + j * Np_x + i;
-                        const real_t c_xi  = D_d[l + Np_x * i]; // legacy D_T(l,i)
-                        const real_t c_eta = D_d[l + Np_x * j]; // legacy D_T(l,j)
-                        const real_t c_zeta = D_d[l + Np_x * k]; // legacy D_T(l,k)
+                        const mfem::real_t c_xi  = D_d[l + Np_x * i]; // legacy D_T(l,i)
+                        const mfem::real_t c_eta = D_d[l + Np_x * j]; // legacy D_T(l,j)
+                        const mfem::real_t c_zeta = D_d[l + Np_x * k]; // legacy D_T(l,k)
                         for (int q = 0; q < neq; ++q)
                           {
                             dudxi[q]  += el_u[id_x + q * dof] * c_xi;
@@ -652,8 +652,8 @@ namespace Theseus
                           }
                       }
 
-                    const real_t invJ = 1.0 / elJac_d[id];
-                    const real_t *adj = elMetric_d + id * dim * dim;
+                    const mfem::real_t invJ = 1.0 / elJac_d[id];
+                    const mfem::real_t *adj = elMetric_d + id * dim * dim;
 
                     // adj stored row-major per point:
                     // [ adj[0] adj[1] adj[2] ]
@@ -682,40 +682,40 @@ namespace Theseus
     template <typename ContextT>
     MFEM_HOST_DEVICE inline
     static void AssembleGradInteriorFaceKernel(const ContextT &ctx,
-                                               const real_t *u_face,
-                                               const real_t *nor_face,
-                                               const real_t *w_minus,
-                                               const real_t *w_plus,
-                                               real_t *rhs_face[Theseus::MAXDIM])
+                                               const mfem::real_t *u_face,
+                                               const mfem::real_t *nor_face,
+                                               const mfem::real_t *w_minus,
+                                               const mfem::real_t *w_plus,
+                                               mfem::real_t *rhs_face[Theseus::MAXDIM])
     {
       const int nfp = ctx.num_face_points;
       const int neq = ctx.num_equations;
       const int dim = ctx.dim;
 
-      real_t qMinus[Theseus::MAXEQ];
-      real_t qPlus[Theseus::MAXEQ];
-      real_t jump[Theseus::MAXEQ];
+      mfem::real_t qMinus[Theseus::MAXEQ];
+      mfem::real_t qPlus[Theseus::MAXEQ];
+      mfem::real_t jump[Theseus::MAXEQ];
 
       for (int i = 0; i < nfp; ++i)
         {
-          const real_t *nor_d = nor_face + i * dim;
+          const mfem::real_t *nor_d = nor_face + i * dim;
 
-          const real_t wminus = w_minus[i];
-          const real_t wplus  = w_plus[i];
+          const mfem::real_t wminus = w_minus[i];
+          const mfem::real_t wplus  = w_plus[i];
 
           for (int q = 0; q < neq; ++q)
             {
               qMinus[q] = u_face[ctx.iface_idx(0, i, q)];
               qPlus[q]  = u_face[ctx.iface_idx(1, i, q)];
-              jump[q]   = real_t(0.5) * (qPlus[q] - qMinus[q]);
+              jump[q]   = mfem::real_t(0.5) * (qPlus[q] - qMinus[q]);
             }
 
           for ( int idim = 0;idim < dim;idim++){
-            real_t *rhs_d = rhs_face[idim];
-            const real_t n_d = nor_d[idim];
+            mfem::real_t *rhs_d = rhs_face[idim];
+            const mfem::real_t n_d = nor_d[idim];
             for (int q = 0; q < neq; ++q)
               {
-                const real_t f_d = jump[q]*n_d;
+                const mfem::real_t f_d = jump[q]*n_d;
                 rhs_d[ctx.iface_idx(0, i, q)] = wminus * f_d;
                 rhs_d[ctx.iface_idx(1, i, q)] = wplus * f_d;
               }
@@ -727,19 +727,19 @@ namespace Theseus
     MFEM_HOST_DEVICE inline
     static void AssembleGradBoundaryPointKernel(const DeviceCacheT &dc,
                                                 const Theseus::BCDescriptor &bc,
-                                                const real_t *u_face,
-                                                const real_t *nor_point,
-                                                const real_t scale,
+                                                const mfem::real_t *u_face,
+                                                const mfem::real_t *nor_point,
+                                                const mfem::real_t scale,
                                                 const int fp,
-                                                real_t *rhs_face[Theseus::MAXDIM])
+                                                mfem::real_t *rhs_face[Theseus::MAXDIM])
     {
       const int dim = dc.dim;
       const int nfp = dc.num_face_points;
       const int neq = dc.num_equations;
 
-      real_t state1[Theseus::MAXEQ];
-      real_t fluxN[Theseus::MAXEQ];
-      real_t flux_dir[Theseus::MAXEQ];
+      mfem::real_t state1[Theseus::MAXEQ];
+      mfem::real_t fluxN[Theseus::MAXEQ];
+      mfem::real_t flux_dir[Theseus::MAXEQ];
 
       Theseus::Kernels::el_gather_state(u_face, nfp, neq, fp, state1);
 

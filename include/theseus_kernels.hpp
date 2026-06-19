@@ -1,37 +1,38 @@
 #pragma once
 
 #include <cmath>
-// Drag in essential parts of MFEM for kernels
-#include "config/config.hpp"
-#include "general/forall.hpp"
-#ifndef MFEM_HOST_DEVICE
-#include "general/device.hpp"
-#endif
-#ifndef MFEM_HOST_DEVICE
-#error "MFEM_HOST_DEVICE not defined. Check MFEM headers/includes."
-#endif
+#include "mfem.hpp"
+// // Drag in essential parts of MFEM for kernels
+// #include "config/config.hpp"
+// #include "general/forall.hpp"
+// #ifndef MFEM_HOST_DEVICE
+// #include "general/device.hpp"
+// #endif
+// #ifndef MFEM_HOST_DEVICE
+// #error "MFEM_HOST_DEVICE not defined. Check MFEM headers/includes."
+// #endif
 
 namespace Theseus
 {
   constexpr const int MAXEQ = 5;
   constexpr const int MAXDIM = 3;
 
-#ifdef MFEM_USE_SINGLE
-  using real_t = float;
-#else
-  using real_t = double;
-#endif
+// #ifdef MFEM_USE_SINGLE
+//   using mfem::real_t = float;
+// #else
+//   using mfem::real_t = double;
+// #endif
 
   namespace Kernels {
-    MFEM_HOST_DEVICE inline real_t rmax(real_t a, real_t b) { return a > b ? a : b; }
-    MFEM_HOST_DEVICE inline real_t rmin(real_t a, real_t b) { return a < b ? a : b; }
-    MFEM_HOST_DEVICE inline real_t rsqrt(real_t x) { return std::sqrt(x); }  // mfem::sqrt?
-    MFEM_HOST_DEVICE inline real_t rlog(real_t x)  { return std::log(x); }   // mfem::log?
-    MFEM_HOST_DEVICE inline real_t rpow(real_t x, real_t y) { return std::pow(x, y); };
-    MFEM_HOST_DEVICE inline real_t rabs(real_t x) { return std::abs(x); };
+    MFEM_HOST_DEVICE inline mfem::real_t rmax(mfem::real_t a, mfem::real_t b) { return a > b ? a : b; }
+    MFEM_HOST_DEVICE inline mfem::real_t rmin(mfem::real_t a, mfem::real_t b) { return a < b ? a : b; }
+    MFEM_HOST_DEVICE inline mfem::real_t rsqrt(mfem::real_t x) { return std::sqrt(x); }  // mfem::sqrt?
+    MFEM_HOST_DEVICE inline mfem::real_t rlog(mfem::real_t x)  { return std::log(x); }   // mfem::log?
+    MFEM_HOST_DEVICE inline mfem::real_t rpow(mfem::real_t x, mfem::real_t y) { return std::pow(x, y); };
+    MFEM_HOST_DEVICE inline mfem::real_t rabs(mfem::real_t x) { return std::abs(x); };
 
-    MFEM_HOST_DEVICE inline void Normalize(const int dim, real_t *vec){
-      real_t fac = 0.0;
+    MFEM_HOST_DEVICE inline void Normalize(const int dim, mfem::real_t *vec){
+      mfem::real_t fac = 0.0;
       for(int idim = 0;idim < dim;idim++){
         fac += (vec[idim]*vec[idim]);
       }
@@ -42,7 +43,7 @@ namespace Theseus
     }
 
     MFEM_HOST_DEVICE
-    inline void Normal(const int dim, const real_t *vec, real_t *nor)
+    inline void Normal(const int dim, const mfem::real_t *vec, mfem::real_t *nor)
     {
       // MFEM_ASSERT(dim == 2 || dim == 3, "Normal only defined here for 2D/3D");
       
@@ -54,13 +55,13 @@ namespace Theseus
         }
       
       // 3D
-      const real_t x = vec[0];
-      const real_t y = vec[1];
-      const real_t z = vec[2];
+      const mfem::real_t x = vec[0];
+      const mfem::real_t y = vec[1];
+      const mfem::real_t z = vec[2];
       
-      const real_t ax = std::fabs(x);
-      const real_t ay = std::fabs(y);
-      const real_t az = std::fabs(z);
+      const mfem::real_t ax = std::fabs(x);
+      const mfem::real_t ay = std::fabs(y);
+      const mfem::real_t az = std::fabs(z);
       
       // Reject zero vector
       // MFEM_ASSERT(ax > 0 || ay > 0 || az > 0, "Zero vector has no normal");
@@ -88,16 +89,16 @@ namespace Theseus
     }
 
     MFEM_HOST_DEVICE
-    inline real_t Dot(const int dim, const real_t *vec1, const real_t *vec2)
+    inline mfem::real_t Dot(const int dim, const mfem::real_t *vec1, const mfem::real_t *vec2)
     {
-      real_t dp = 0.0;
+      mfem::real_t dp = 0.0;
       for(int idim = 0;idim < dim;idim++)
         dp += vec1[idim]*vec2[idim];
       return dp;
     }
 
     MFEM_HOST_DEVICE
-    inline void Cross(const int dim, const real_t *vec1, const real_t *vec2, real_t *cross)
+    inline void Cross(const int dim, const mfem::real_t *vec1, const mfem::real_t *vec2, mfem::real_t *cross)
     {
       // MFEM_ASSERT(dim == 3, "Apply cross product only to 3D vectors");
       
@@ -107,22 +108,22 @@ namespace Theseus
     }
 
     MFEM_HOST_DEVICE
-    inline void ComputeMeanVec(const real_t* a, const real_t* b, real_t* out, int n)
+    inline void ComputeMeanVec(const mfem::real_t* a, const mfem::real_t* b, mfem::real_t* out, int n)
     {
-      for (int i=0;i<n;++i) out[i] = real_t(0.5)*(a[i]+b[i]);
+      for (int i=0;i<n;++i) out[i] = mfem::real_t(0.5)*(a[i]+b[i]);
     }
     
     MFEM_HOST_DEVICE
-    inline real_t ComputeLogMean(real_t x, real_t y, real_t eps) // eps defaults to 1e-4 on CPU
+    inline mfem::real_t ComputeLogMean(mfem::real_t x, mfem::real_t y, mfem::real_t eps) // eps defaults to 1e-4 on CPU
     {
-      const real_t xi = y / x;
-      const real_t u  = (xi*(xi - 2.0) + 1.0) / (xi*(xi + 2.0) + 1.0);
+      const mfem::real_t xi = y / x;
+      const mfem::real_t u  = (xi*(xi - 2.0) + 1.0) / (xi*(xi + 2.0) + 1.0);
       
       // polynomial approximation branch when u is small
       if (u < eps)
         {
           // (x+y)*52.5 / (105 + u*(35 + u*(21 + 15*u)))
-          const real_t denom = 105.0 + u*(35.0 + u*(21.0 + 15.0*u));
+          const mfem::real_t denom = 105.0 + u*(35.0 + u*(21.0 + 15.0*u));
           return (x + y) * 52.5 / denom;
         }
       else
@@ -134,14 +135,14 @@ namespace Theseus
     // Element storage: component-major (q blocks), length = dof*num_eq
     // u[q*dof + id]
     MFEM_HOST_DEVICE inline
-    real_t el_get(const real_t *u, int dof, int num_eq, int id, int q)
+    mfem::real_t el_get(const mfem::real_t *u, int dof, int num_eq, int id, int q)
     {
       (void)num_eq; // not needed for this layout
       return u[q*dof + id];
     }
     
     MFEM_HOST_DEVICE inline
-    void el_gather_state(const real_t *u, const int dof, const int num_eq, const int id, real_t *dst)
+    void el_gather_state(const mfem::real_t *u, const int dof, const int num_eq, const int id, mfem::real_t *dst)
     {
       // MFEM_ASSERT(id >= 0 && id < dof, "element index out of bounds");
       for (int q = 0; q < num_eq; ++q)
@@ -149,9 +150,9 @@ namespace Theseus
     }
     
     MFEM_HOST_DEVICE inline
-    void el_gather_grad_state(const real_t *grad_state_x, const real_t *grad_state_y, const real_t *grad_state_z,
+    void el_gather_grad_state(const mfem::real_t *grad_state_x, const mfem::real_t *grad_state_y, const mfem::real_t *grad_state_z,
                               const int dim, const int dof, const int neq, const int id,
-                              real_t *dqx, real_t *dqy, real_t *dqz)
+                              mfem::real_t *dqx, mfem::real_t *dqy, mfem::real_t *dqz)
     {
       el_gather_state(grad_state_x, dof, neq, id, dqx);
       if (dim > 1) el_gather_state(grad_state_y, dof, neq, id, dqy);
@@ -159,12 +160,12 @@ namespace Theseus
     }
 
     MFEM_HOST_DEVICE inline
-    void el_scatter_add(const real_t *f,
+    void el_scatter_add(const mfem::real_t *f,
                         const int dof,
                         const int num_eq,
                         const int id,
-                        const real_t scale,
-                        real_t *du)
+                        const mfem::real_t scale,
+                        mfem::real_t *du)
     {
       // MFEM_ASSERT(id >= 0 && id < dof, "element index out of bounds");
       // Element storage is component-major (byVDIM):
@@ -176,12 +177,12 @@ namespace Theseus
     }
 
     MFEM_HOST_DEVICE inline
-    void el_scatter_assign(const real_t *f,
+    void el_scatter_assign(const mfem::real_t *f,
                            const int dof,
                            const int num_eq,
                            const int id,
-                           const real_t scale,
-                           real_t *du)
+                           const mfem::real_t scale,
+                           mfem::real_t *du)
     {
       // MFEM_ASSERT(id >= 0 && id < dof, "element index out of bounds");
       // Element storage is component-major (byVDIM):
@@ -193,15 +194,15 @@ namespace Theseus
     }
 
     MFEM_HOST_DEVICE inline
-    void el_scale(const real_t *scale_d,
-                  const real_t fac,
+    void el_scale(const mfem::real_t *scale_d,
+                  const mfem::real_t fac,
                   const int dof,      // scalar dofs per element
                   const int neq,
-                  real_t *el_soln)        // num equations
+                  mfem::real_t *el_soln)        // num equations
     {
       for (int id = 0; id < dof; ++id)
         {
-          const real_t invJ = fac / scale_d[id];
+          const mfem::real_t invJ = fac / scale_d[id];
           for (int q = 0; q < neq; ++q)
             {
               el_soln[id + q*dof] *= invJ;
@@ -209,7 +210,7 @@ namespace Theseus
         }
     }
 
-    MFEM_HOST_DEVICE inline bool is_bad_value(real_t x)
+    MFEM_HOST_DEVICE inline bool is_bad_value(mfem::real_t x)
     {
       return !std::isfinite(x);
     }

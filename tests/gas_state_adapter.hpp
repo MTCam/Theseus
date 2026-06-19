@@ -8,7 +8,7 @@
 class GasStateSemanticsAdapter
 {
 public:
-    using real_t = Theseus::real_t;
+    using real_t = mfem::real_t;
 
     GasStateSemanticsAdapter(int dim, int num_dofs_scalar)
         : layout_(dim, num_dofs_scalar),

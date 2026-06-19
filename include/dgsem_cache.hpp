@@ -7,15 +7,15 @@
 namespace Theseus
 {
   struct IntegralMeasures {
-    real_t mass = 0.0;
-    real_t ke = 0.0;
-    real_t en = 0.0;
-    real_t max_press = 0.0;
-    real_t min_press = 0.0;
-    real_t max_temp = 0.0;
-    real_t min_temp = 0.0;
-    real_t max_dens = 0.0;
-    real_t min_dens = 0.0;
+    mfem::real_t mass = 0.0;
+    mfem::real_t ke = 0.0;
+    mfem::real_t en = 0.0;
+    mfem::real_t max_press = 0.0;
+    mfem::real_t min_press = 0.0;
+    mfem::real_t max_temp = 0.0;
+    mfem::real_t min_temp = 0.0;
+    mfem::real_t max_dens = 0.0;
+    mfem::real_t min_dens = 0.0;
   };
 
   template<typename PhysicsT>
@@ -150,40 +150,40 @@ namespace Theseus
     // Volume elements
     const int *elem_attr_d = nullptr;    // size ne, values are 1-based attributes
     const int *attr_marker_d = nullptr;  // size nattr, 0/1
-    const real_t *elJac_d = nullptr;
-    const real_t *elMetric_d = nullptr;
-    const real_t *D_d = nullptr;
-    const real_t *Dhat_d = nullptr;
-    const real_t *Dhat2_d = nullptr;
-    const real_t *elQWgts_d = nullptr;
+    const mfem::real_t *elJac_d = nullptr;
+    const mfem::real_t *elMetric_d = nullptr;
+    const mfem::real_t *D_d = nullptr;
+    const mfem::real_t *Dhat_d = nullptr;
+    const mfem::real_t *Dhat2_d = nullptr;
+    const mfem::real_t *elQWgts_d = nullptr;
 
     // Internal faces
-    const real_t *nor_d = nullptr;
-    const real_t *fw_minus_d = nullptr;
-    const real_t *fw_plus_d = nullptr;
+    const mfem::real_t *nor_d = nullptr;
+    const mfem::real_t *fw_minus_d = nullptr;
+    const mfem::real_t *fw_plus_d = nullptr;
 
     // Boundary faces
-    const real_t *bnd_nor_d = nullptr;
-    const real_t *bnd_wt_d = nullptr;
+    const mfem::real_t *bnd_nor_d = nullptr;
+    const mfem::real_t *bnd_wt_d = nullptr;
     const int *bnd_attr_d = nullptr;
     const int *bnd_marker_index_d = nullptr;
     const Theseus::BCDescriptor *bc_descr_d = nullptr;
-    const real_t *bc_scalar_d = nullptr;
-    const real_t *bc_vector_d = nullptr;
+    const mfem::real_t *bc_scalar_d = nullptr;
+    const mfem::real_t *bc_vector_d = nullptr;
     const int *bnd_marker_to_bc_descr_d = nullptr;
 
     // Physics parts
-    real_t *elWaveSpeed_d = nullptr;
-    real_t *ifWaveSpeed_d = nullptr;
-    real_t *bndWaveSpeed_d = nullptr; 
+    mfem::real_t *elWaveSpeed_d = nullptr;
+    mfem::real_t *ifWaveSpeed_d = nullptr;
+    mfem::real_t *bndWaveSpeed_d = nullptr; 
     Gas gas;
     InviscidFlux iflux;
 
 #ifdef SUBCELL_FV_BLENDING
-    const real_t *subcell_metric_xi_d = nullptr;
-    const real_t *subcell_metric_eta_d = nullptr;
-    const real_t *subcell_metric_zeta_d = nullptr;
-    const real_t *subcell_weights_d = nullptr;
+    const mfem::real_t *subcell_metric_xi_d = nullptr;
+    const mfem::real_t *subcell_metric_eta_d = nullptr;
+    const mfem::real_t *subcell_metric_zeta_d = nullptr;
+    const mfem::real_t *subcell_weights_d = nullptr;
 #endif
 
     MFEM_HOST_DEVICE inline int iface_idx(int side, int fp, int eq) const

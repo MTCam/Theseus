@@ -7,7 +7,7 @@
 
 #include <cmath>
 
-using real_t = Theseus::real_t;
+using real_t = mfem::real_t;
 
 static void set_state_2d(mfem::Vector &q,
                          real_t rho,

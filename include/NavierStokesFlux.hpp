@@ -11,29 +11,29 @@ namespace Theseus
     template<typename GasT>
     MFEM_HOST_DEVICE inline static void
     ComputeInviscidFluxKernel(const GasT &gas,
-                              const real_t *state,
-                              real_t inv_flux[Theseus::MAXEQ][Theseus::MAXDIM])
+                              const mfem::real_t *state,
+                              mfem::real_t inv_flux[Theseus::MAXEQ][Theseus::MAXDIM])
     { 
       PointStateView S{state};
       
       // 1. Get states
       const int dim = gas.dim();
-      const real_t density = gas.density(S);
-      const real_t spec_vol = 1.0/density;
-      real_t momentum[Theseus::MAXDIM] = {0.,0.,0.};
+      const mfem::real_t density = gas.density(S);
+      const mfem::real_t spec_vol = 1.0/density;
+      mfem::real_t momentum[Theseus::MAXDIM] = {0.,0.,0.};
       for(int idim = 0;idim < dim;idim++){
         momentum[idim] = gas.momentum(S, idim);
       }
 
-      const real_t energy = gas.energy(S);
-      const real_t pressure = gas.pressure(S);
-      const real_t ke = gas.kinetic_energy_density(S);
+      const mfem::real_t energy = gas.energy(S);
+      const mfem::real_t pressure = gas.pressure(S);
+      const mfem::real_t ke = gas.kinetic_energy_density(S);
       const int eq_mass = gas.L.eq_mass;
       const int eq_mom0 = gas.L.eq_mom0;
       const int eq_ener = gas.L.eq_energy;
       const int eq_spec = gas.L.eq_scalar0;
 
-      const real_t H = (energy + pressure)*spec_vol;
+      const mfem::real_t H = (energy + pressure)*spec_vol;
       // 2. Compute Flux
       for (int d = 0; d < dim; d++)
         {
@@ -51,9 +51,9 @@ namespace Theseus
           }
         }
       // 3. Compute maximum characteristic speed 
-      // const real_t sound = gas.sound_speed(S);
+      // const mfem::real_t sound = gas.sound_speed(S);
       // fluid speed |u|
-      // const real_t speed = Theseus::Kernels::rsqrt(2.0 * ke / density);
+      // const mfem::real_t speed = Theseus::Kernels::rsqrt(2.0 * ke / density);
       // max characteristic speed = fluid speed + sound speed
       // return speed + sound;
     }
@@ -61,11 +61,11 @@ namespace Theseus
     template<typename GasT>
     MFEM_HOST_DEVICE inline
     static void ComputeViscousFluxKernel(const GasT &gas,
-                                         const real_t *state,
-                                         const real_t *dprim_x,
-                                         const real_t *dprim_y,
-                                         const real_t *dprim_z,
-                                         real_t visc_flux[Theseus::MAXEQ][Theseus::MAXDIM])
+                                         const mfem::real_t *state,
+                                         const mfem::real_t *dprim_x,
+                                         const mfem::real_t *dprim_y,
+                                         const mfem::real_t *dprim_z,
+                                         mfem::real_t visc_flux[Theseus::MAXEQ][Theseus::MAXDIM])
     {
 
       // TODO: Update for scalar transport
@@ -80,9 +80,9 @@ namespace Theseus
       PointStateView S{state};
  
       // Access some physical constants
-      const real_t mu = gas.viscosity(S);
-      const real_t kappa = gas.thermal_conductivity(S);
-      const real_t mu_bulk = gas.bulk_viscosity(S);
+      const mfem::real_t mu = gas.viscosity(S);
+      const mfem::real_t kappa = gas.thermal_conductivity(S);
+      const mfem::real_t mu_bulk = gas.bulk_viscosity(S);
 
       // State structure constants
       const int eq_mass = gas.L.eq_mass;
@@ -91,10 +91,10 @@ namespace Theseus
       const int nscalar = gas.L.num_scalars;
  
       // Make & populate gradient containers
-      real_t grad_rho[Theseus::MAXDIM] = {0.0, 0.0, 0.0};
-      real_t grad_p[Theseus::MAXDIM] = {0.0, 0.0, 0.0};
-      real_t grad_t[Theseus::MAXDIM] = {0.0, 0.0, 0.0};
-      real_t grad_vel[Theseus::MAXDIM][Theseus::MAXDIM] = {{0.0}};
+      mfem::real_t grad_rho[Theseus::MAXDIM] = {0.0, 0.0, 0.0};
+      mfem::real_t grad_p[Theseus::MAXDIM] = {0.0, 0.0, 0.0};
+      mfem::real_t grad_t[Theseus::MAXDIM] = {0.0, 0.0, 0.0};
+      mfem::real_t grad_vel[Theseus::MAXDIM][Theseus::MAXDIM] = {{0.0}};
 
       grad_rho[0] = dprim_x[eq_mass];
       grad_vel[0][0] = dprim_x[eq_mom0];
@@ -117,8 +117,8 @@ namespace Theseus
       }
 
       gas.grad_temperature(S, grad_rho, grad_p, grad_t);
-      real_t vel[Theseus::MAXDIM] = {0.0, 0.0, 0.0};
-      real_t div_vel = 0.0;
+      mfem::real_t vel[Theseus::MAXDIM] = {0.0, 0.0, 0.0};
+      mfem::real_t div_vel = 0.0;
       for(int i = 0;i < dim;i++){
         vel[i] = gas.velocity(S, i);
         div_vel += grad_vel[i][i];
@@ -134,7 +134,7 @@ namespace Theseus
           // viscous stress tensor components tau[mom,dir]
           for (int mom = 0; mom < dim; ++mom)
             {
-              real_t tau = 0.0;
+              mfem::real_t tau = 0.0;
 
               if (mom == dir)
                 {
@@ -148,7 +148,7 @@ namespace Theseus
               
               visc_flux[eq_mom0 + mom][dir] = tau;
             }
-          real_t eflux = kappa * grad_t[dir];
+          mfem::real_t eflux = kappa * grad_t[dir];
           for(int mom = 0;mom < dim;mom++)
             {
               eflux += vel[mom] * visc_flux[eq_mom0 + mom][dir];
@@ -162,14 +162,14 @@ namespace Theseus
     static void compute_ref_viscous_flux(const GasT &gas,
                                          const int dim,
                                          const int neq,
-                                         const real_t *state,
-                                         const real_t *dqx,
-                                         const real_t *dqy,
-                                         const real_t *dqz,
-                                         const real_t *adj_row,
-                                         real_t *f_ref)
+                                         const mfem::real_t *state,
+                                         const mfem::real_t *dqx,
+                                         const mfem::real_t *dqy,
+                                         const mfem::real_t *dqz,
+                                         const mfem::real_t *adj_row,
+                                         mfem::real_t *f_ref)
     {
-      real_t flux_phys[Theseus::MAXEQ][Theseus::MAXDIM] = {{0.}};
+      mfem::real_t flux_phys[Theseus::MAXEQ][Theseus::MAXDIM] = {{0.}};
 
       // Grab the physical flux
       ComputeViscousFluxKernel(gas, state, dqx, dqy, dqz, flux_phys);

@@ -6,7 +6,7 @@
 
 #include <cmath>
 
-using Theseus::real_t;
+using mfem::real_t;
 using Theseus::PhysicsConstants;
 using Theseus::Transport;
 using Theseus::IdealSingleGasEOS;

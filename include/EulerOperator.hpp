@@ -30,17 +30,17 @@ namespace Theseus
 		  const std::string &gasModelName_,
 		  const std::string &numFluxName_,
                   std::shared_ptr<mfem::ParGridFunction> r_gf_ = nullptr,
-                  const real_t alpha_max = 0.5, const real_t alpha_min = 0.001)
+                  const mfem::real_t alpha_max = 0.5, const mfem::real_t alpha_min = 0.001)
     : RHSOperator<PhysicsT>(vfes_, fes0_, pmesh_, eta_, alpha_, indicator_,
                             gasModel_, gasModelName_, numFluxName_,
 			    "Euler", r_gf_, alpha_max, alpha_min)
     {}
 
     ~EulerOperator() = default;
-    real_t FlowMult(const mfem::Vector &pu, mfem::Vector &pdudt) const override;
-    real_t MultEuler_Volume(const mfem::Vector &pu, mfem::Vector &pdudt) const;
-    real_t MultEuler_InteriorFaces(const mfem::Vector &pu, mfem::Vector &pdudt) const;
-    real_t MultEuler_BoundaryFaces(const mfem::Vector &pu, mfem::Vector &pdudt) const;
+    mfem::real_t FlowMult(const mfem::Vector &pu, mfem::Vector &pdudt) const override;
+    mfem::real_t MultEuler_Volume(const mfem::Vector &pu, mfem::Vector &pdudt) const;
+    mfem::real_t MultEuler_InteriorFaces(const mfem::Vector &pu, mfem::Vector &pdudt) const;
+    mfem::real_t MultEuler_BoundaryFaces(const mfem::Vector &pu, mfem::Vector &pdudt) const;
 
   };
   

@@ -2,7 +2,7 @@
 #include "mfem.hpp"
 #include "GasState.hpp"
 
-using Theseus::real_t;
+using mfem::real_t;
 
 // Helper to fill a single-DOF conservative state in `U`.
 //
