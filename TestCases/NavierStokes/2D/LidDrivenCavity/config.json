@@ -90,14 +90,14 @@
                 },
                 "lid":
                 {
-                    "type": "no-slip-adiabatic",
+                    "type": "no-slip-isothermal",
                     "velocity":
                     {
                         "vector": "LidDrivenCavityLidVelBCVector"
                     },
-                    "heat":
+                    "temperature":
                     {
-                        "scalar": "LidDrivenCavityAdiaBCScalar"
+                        "scalar": "LidDrivenCavityIsoBCScalar"
                     }
                 }
             }

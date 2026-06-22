@@ -110,6 +110,8 @@ namespace Prandtl
 
   // Lid-driven Cavity heat flow boundary condition scalar for adiabatic walls and lid
   const Prandtl::BC_Scalar LidDrivenCavityAdiaBCScalar = 0.0;
+  // Lid-driven Cavity heat flow boundary condition scalar for isothermal lid
+  const Prandtl::BC_Scalar LidDrivenCavityIsoBCScalar = 3.0;
 
   // Lid-driven Cavity velocity boundary condition function for walls
   std::function<void(const mfem::Vector&, mfem::Vector&)> LidDrivenCavityWallVelBCFunction()
@@ -120,6 +122,7 @@ namespace Prandtl
       vel(1) = 0.0;
     };
   }
+
   // Lid-driven Cavity velocity boundary condition vector for walls
   const Prandtl::BC_Vector LidDrivenCavityWallVelBCVector({0.0, 0.0});
 
@@ -152,10 +155,12 @@ namespace Prandtl
 										     LidDrivenCavityWallVelBCFunction);
       Prandtl::ConditionFactory::Instance().RegisterVectorFunctionBoundaryCondition2("LidDrivenCavityLidVelBCFunction",
 										     LidDrivenCavityLidVelBCFunction);
-        
+
       // Register boundary conditions with constant scalars/vectors.
       Prandtl::ConditionFactory::Instance().RegisterScalarBoundaryCondition("LidDrivenCavityAdiaBCScalar",
 									    LidDrivenCavityAdiaBCScalar);
+      Prandtl::ConditionFactory::Instance().RegisterScalarBoundaryCondition("LidDrivenCavityIsoBCScalar",
+									    LidDrivenCavityIsoBCScalar);
       Prandtl::ConditionFactory::Instance().RegisterVectorBoundaryCondition("LidDrivenCavityWallVelBCVector",
 									    LidDrivenCavityWallVelBCVector);
       Prandtl::ConditionFactory::Instance().RegisterVectorBoundaryCondition("LidDrivenCavityLidVelBCVector",

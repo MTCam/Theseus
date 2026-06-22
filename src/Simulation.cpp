@@ -738,7 +738,38 @@ namespace Theseus
               }
             else if (type == "no-slip-isothermal")
               {
+                bc_descr.type = int(Theseus::BCType::NoSlipIso);
+                bc_descr.data_kind = int(Theseus::BCDataKind::VectorAndScalarConstant);
+                if (bc_props["velocity"].contains("vector"))
+                  {
+                    std::string velBC_key = bc_props["velocity"]["vector"].get<std::string>();
+                    std::string tempBC_key = bc_props["temperature"]["scalar"].get<std::string>();
+                    // std::string state_key = bc_props["vector"].get<std::string>();
+                    auto vel_bc = Prandtl::ConditionFactory::Instance().GetVectorBoundaryCondition(velBC_key);
+                    auto temp_bc = Prandtl::ConditionFactory::Instance().GetScalarBoundaryCondition(tempBC_key);
 
+                    mfem::Vector bc_data(vel_bc.Size() + 1);
+                    std::ostringstream Ostr;
+                    Ostr << "Wall velocity: < ";
+                    for(int ivec = 0;ivec < vel_bc.Size();ivec++){
+                      bc_data[ivec] = vel_bc[ivec];
+                      Ostr << vel_bc[ivec] << " ";
+                    }
+                    Ostr << ">" << std::endl;
+                    Ostr << "Wall temperature: " << temp_bc << std::endl;
+                    bc_data[vel_bc.Size()] = temp_bc;
+                    bc_descr.data_index = Theseus::AppendBCVectorPayload(bc_vector_data, bc_data);
+                    Ostr << "bc_vector_data index: " << bc_descr.data_index << std::endl
+                         << "BC Data So Far: [";
+                    for(int ivec=0;ivec < bc_vector_data.Size();ivec++){
+                      Ostr << bc_vector_data[ivec] << " ";
+                    }
+                    Ostr << "]" << std::endl;
+		    if(debug_simulation && mfem::Mpi::Root()){
+		      std::cout << Ostr.str();
+		    }
+                    rhsOp->AddBdrFaceMarker(bdr_marker_vector.back());
+                  }
               }
             else if (type == "supersonic-outflow")
               {
