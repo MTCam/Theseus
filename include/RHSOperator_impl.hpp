@@ -17,15 +17,11 @@ namespace Theseus
     }
 #endif
 
-    // operator_cache.gas = gasModel; // gasModel *must* be POD
-    // operator_cache.alpha = alpha; // Alpha is a driver-owned gridfunc
     operator_cache.bc_descriptors = bc_descriptors;
     operator_cache.bc_scalar_data = bc_scalar_data;
     operator_cache.bc_vector_data = bc_vector_data;
 
     GetDeviceCache(operator_cache, device_cache);
-    //nonlinearForm->SetOperatorCache(&operator_cache);
-    //integrator->SetOperatorCache(&operator_cache); 
   }
 
 #ifdef SUBCELL_FV_BLENDING  
