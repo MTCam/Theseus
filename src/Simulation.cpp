@@ -342,20 +342,22 @@ namespace Theseus
     std::int64_t ndofscalar = fes->GetNDofs();
     std::int64_t ndofsys = vfes->GetVSize();
     int points_per_element = std::pow(order+1, dim);
-    std::int64_t num_elements = ndofscalar / points_per_element;
-    MPI_Allreduce(MPI_IN_PLACE, &num_elements, 1, MPI_LONG_LONG, MPI_SUM, pmesh->GetComm());
-    if(debug_simulation && numProcs > 1){
+    std::int64_t num_elements_local = ndofscalar / points_per_element;
+    std::int64_t num_elements_total = num_elements_local;
+
+    //    if(debug_simulation && numProcs > 1){
+    if(numProcs > 1){
       for(int irank = 0;irank < numProcs;irank++){
        if(myRank == irank){
          std::cout << "Rank(" << myRank << ") Number of elements: "
-                   << num_elements << std::endl;
+                   << num_elements_local << std::endl;
        }
        MPI_Barrier(pmesh->GetComm());
       }
     }
     if(numProcs > 1){
-      std::int64_t max_nel = num_elements;
-      std::int64_t  min_nel = num_elements;
+      std::int64_t max_nel = num_elements_local;
+      std::int64_t  min_nel = num_elements_local;
       MPI_Allreduce(MPI_IN_PLACE, &max_nel, 1, MPI_LONG_LONG, MPI_MAX, pmesh->GetComm());
       MPI_Allreduce(MPI_IN_PLACE, &min_nel, 1, MPI_LONG_LONG, MPI_MIN, pmesh->GetComm());
       if(myRank == 0){
@@ -363,7 +365,7 @@ namespace Theseus
                  << ")" << std::endl;
       }
     }
-    MPI_Allreduce(MPI_IN_PLACE, &num_elements, 1, MPI_LONG_LONG, MPI_SUM, pmesh->GetComm());
+    MPI_Allreduce(MPI_IN_PLACE, &num_elements_total, 1, MPI_LONG_LONG, MPI_SUM, pmesh->GetComm());
 
     if(myRank == 0 && debug_simulation){
       std::cout << "Initial exchanges complete." << std::endl;
@@ -966,13 +968,13 @@ namespace Theseus
       {
         std::cout << "The Number of Equations being Solved: " << num_equations << std::endl
 		  << "The Total Number of Order " << order << " Elements in the Simulation: "
-		  << num_elements << std::endl
+		  << num_elements_total << std::endl
 		  << "The Total Number of DOFs per Equation per Element: "
 		  << points_per_element << std::endl
 		  << "The Total Number of DOFs in the Simulation (All Eqns/All Ranks): "
-                  << num_elements*points_per_element*num_equations << std::endl
+                  << num_elements_total*points_per_element*num_equations << std::endl
 		  << "Per Rank Averages:" << std::endl
-                  << "  Number of Elements:     " << num_elements / numProcs << std::endl
+                  << "  Number of Elements:     " << num_elements_total / numProcs << std::endl
                   << "  Number of DOFs per Enq: " << num_dofs_scalar << std::endl
                   << "  Total DOFs (all eqns):  " << num_dofs_system << std::endl;
       }

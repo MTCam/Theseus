@@ -864,7 +864,8 @@ namespace Prandtl
   {
     return [gamma](const mfem::Vector &x, mfem::Vector &y)
     {
-      mfem::real_t density, velocity_x, pressure, energy, V;
+      // mfem::real_t density, velocity_x, pressure, energy, V;
+      mfem::real_t density, velocity_x, pressure, energy;
       mfem::real_t a_inf, M_inf = 0.5, rho_inf = 1.225, p_inf = 1.0;
       a_inf = std::sqrt(gamma * p_inf / rho_inf);
       // MFEM_ASSERT(x.Size() == 1, "");
@@ -892,7 +893,8 @@ namespace Prandtl
   {
     return [gamma](const mfem::Vector &x, mfem::real_t t, mfem::Vector &y)
     {
-      mfem::real_t density, velocity_x, pressure, energy, V, v_;
+      // mfem::real_t density, velocity_x, pressure, energy, V, v_;
+      mfem::real_t density, velocity_x, pressure, energy;
       mfem::real_t a_inf, M_inf = 0.5, rho_inf = 1.225, p_inf = 1.0;
       a_inf = std::sqrt(gamma * p_inf / rho_inf);
       // MFEM_ASSERT(x.Size() == 1, "");
@@ -1132,7 +1134,7 @@ namespace Prandtl
   {
     return [gamma](const mfem::Vector &x, mfem::Vector &y)
     {
-      mfem::real_t density, velocity_x, pressure, energy;
+      // mfem::real_t density, velocity_x, pressure, energy;
       MFEM_ASSERT(x.Size() == 1, "");
 
       if (x(0) < 3.0)
