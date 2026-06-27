@@ -14,6 +14,7 @@ option(ENABLE_TIMERS "Enable performance timers." OFF)
 option(ENABLE_TIMER_BARRIER "MPI_BARRIER in performance timers." OFF)
 option(ENABLE_TIMER_OUTPUT_ALLRANKS "Output timers on all ranks." OFF)
 option(ENABLE_CUDA "Compile CUDA kernels" OFF)
+option(THESEUS_WITH_PLATO "Enable PLATO API for thermo tables" OFF)
 
 find_package(MFEM REQUIRED CONFIG) 
 if (TARGET MFEM::mfem)
@@ -30,6 +31,23 @@ message(STATUS "THESEUS_MFEM_TARGET = ${THESEUS_MFEM_TARGET}")
 message(STATUS "MFEM include dirs = ${_mfem_inc}")
 message(STATUS "MFEM compile defs = ${_mfem_defs}")
 message(STATUS "MFEM link libs = ${_mfem_libs}")
+
+if (THESEUS_WITH_PLATO)
+   message(STATUS "Build ${PROJECT_NAME} with PLATO API enabled.")
+   find_library(PLATO_LIBRARY
+     NAMES plato Plato
+     REQUIRED
+   )
+   find_path(PLATO_INCLUDE_DIR
+     NAMES plato_Cpp_library_interface.h
+     REQUIRED
+   )
+   add_library(Plato::Plato UNKNOWN IMPORTED)
+   set_target_properties(Plato::Plato PROPERTIES
+      IMPORTED_LOCATION "${PLATO_LIBRARY}"
+      INTERFACE_INCLUDE_DIRECTORIES "${PLATO_INCLUDE_DIR}"
+   )
+endif()
 
 find_package(MPI REQUIRED COMPONENTS CXX)
 
@@ -53,6 +71,11 @@ if (ENABLE_CUDA)
    target_compile_options(theseus PRIVATE
      $<$<COMPILE_LANGUAGE:CUDA>:--expt-extended-lambda --expt-relaxed-constexpr>
    )
+endif()
+
+if(THESEUS_WITH_PLATO)
+  target_compile_definitions(theseus PRIVATE USE_PLATO)
+  target_link_libraries(theseus PRIVATE Plato::Plato)
 endif()
 
 # --- Python Script for Compile Definitions ---

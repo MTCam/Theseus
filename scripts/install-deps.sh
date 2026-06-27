@@ -15,6 +15,7 @@ HIP_ARCH="${HIP_ARCH:-}"
 
 export CC="${CC:-mpicc}"
 export CXX="${CXX:-mpicxx}"
+export FC="${FC:-mpif90}"
 
 GKLIB_REPO="${GKLIB_REPO:-https://github.com/KarypisLab/GKlib.git}"
 GKLIB_REF="${GKLIB_REF:-master}"
@@ -27,6 +28,9 @@ HYPRE_REF="${HYPRE_REF:-master}"
 
 MFEM_REPO="${MFEM_REPO:-https://github.com/mfem/mfem.git}"
 MFEM_REF="${MFEM_REF:-master}"
+
+PLATO_REPO="${PLATO_REPO:-https://github.com/chess-uiuc/plato.git}"
+PLATO_REF="${PLATO_REF:-main}"
 
 mkdir -p "$SRC_DIR" "$BUILD_DIR" "$PREFIX" "$LOG_DIR"
 
@@ -129,6 +133,27 @@ build_metis() {
   cd - >/dev/null
 }
 
+build_plato() {
+    local src="$SRC_DIR/plato"
+    CONFIGURE_OPTS=""
+    if [[ "$(uname -s)" == "Darwin" ]]; then
+	SDKROOT="$(xcrun --show-sdk-path)"
+	export CFLAGS="-isysroot $SDKROOT"
+	export CXXFLAGS="-isysroot $SDKROOT"
+	export LDFLAGS="-isysroot $SDKROOT -L$SDKROOT/usr/lib"
+    fi
+
+    cd "$src"
+
+    run_logged "plato-distclean" make distclean || true
+    run_logged "plato-autogen" ./autogen.sh
+    run_logged "plato-config" ./configure "$CONFIGURE_OPTS" --prefix="$PREFIX"
+    run_logged "plato-build" make
+    run_logged "plato-install" make install
+
+    cd - >/dev/null
+}
+
 build_hypre() {
   local src="$SRC_DIR/hypre/src"
 
@@ -223,11 +248,13 @@ record_final_summary() {
 
 record_system_info
 
+clone_or_update "$PLATO_REPO" "$PLATO_REF" "$SRC_DIR/plato"
 clone_or_update "$GKLIB_REPO" "$GKLIB_REF" "$SRC_DIR/GKlib"
 clone_or_update "$METIS_REPO" "$METIS_REF" "$SRC_DIR/METIS"
 clone_or_update "$HYPRE_REPO" "$HYPRE_REF" "$SRC_DIR/hypre"
 clone_or_update "$MFEM_REPO" "$MFEM_REF" "$SRC_DIR/mfem"
 
+build_plato
 build_gklib
 build_metis
 build_hypre

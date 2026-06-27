@@ -174,6 +174,7 @@ namespace Theseus {
       mfem::real_t rho_max  = runtime.value("rho_max", 1.1);
       mfem::real_t T_min    = runtime.value("T_min", 250.0);
       mfem::real_t T_max    = runtime.value("T_max", 35.0);
+      mfem::real_t e_min, e_max;
       int num_properties = 9; // CL NOTE : Check LTE EOS
       auto lteData = std::make_unique<Theseus::LTETableData>();
       auto &lteTableData = *lteData;

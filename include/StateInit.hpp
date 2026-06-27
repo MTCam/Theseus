@@ -5,6 +5,130 @@
 namespace Prandtl
 {
 
+  // Isentropic Vortex initial condition
+  std::function<void(const mfem::Vector&, mfem::Vector&)> LTEVortexIC(mfem::real_t radius,
+								      mfem::real_t vel_inf,
+								      mfem::real_t beta,
+								      mfem::real_t rho_inf,
+								      mfem::real_t temp_inf)
+  {
+    return [=](const mfem::Vector &x, mfem::Vector &y)
+    {
+      MFEM_ASSERT(x.Size() == 2, "");
+
+      const mfem::real_t xc = 0.0;
+      const mfem::real_t yc = 0.0;
+
+      // Using CPG constants only to shape the initial field.
+      const mfem::real_t gamma = 1.4;
+      const mfem::real_t R_gas = 287.05;
+      const mfem::real_t gm1   = gamma - 1.0;
+      const mfem::real_t cp    = gamma * R_gas / gm1;
+
+      // using the perfect-gas relations
+      const mfem::real_t pres_inf = rho_inf * R_gas * temp_inf;
+
+      mfem::real_t dx = x(0) - xc;
+      mfem::real_t dy = x(1) - yc;
+
+      mfem::real_t r2rad = (dx*dx + dy*dy) / (radius * radius);
+
+      const mfem::real_t exp_half = std::exp(-0.5 * r2rad);
+      const mfem::real_t exp_full = std::exp(-r2rad);
+
+      // Vortex velocity field
+      const mfem::real_t velX = vel_inf * (1.0 - beta * dy / radius * exp_half);
+      const mfem::real_t velY = vel_inf * (      beta * dx / radius * exp_half);
+      const mfem::real_t vel2 = velX * velX + velY * velY;
+
+      // Gaussian temperature perturbation
+      const mfem::real_t temp =
+	temp_inf - 0.5 * (vel_inf * beta) * (vel_inf * beta) / cp * exp_full;
+
+      // Safety clamp so the IC never goes nonphysical
+      const mfem::real_t temp_safe = std::max(temp, 0.2 * temp_inf);
+
+      // CPG isentropic relations used only to generate the spatial field
+      const mfem::real_t den  = rho_inf * std::pow(temp_safe / temp_inf, 1.0 / gm1);
+      const mfem::real_t pres = pres_inf * std::pow(temp_safe / temp_inf, gamma / gm1);
+
+      const mfem::real_t rhoe = pres / gm1;
+      const mfem::real_t rhoE = rhoe + 0.5 * den * vel2;
+
+      y(0) = den;
+      y(1) = den * velX;
+      y(2) = den * velY;
+      y(3) = rhoE;
+    };
+  }
+
+  // Registration helper that automatically registers these functions
+  struct RegisterLTEVortex
+  {
+    RegisterLTEVortex()
+    {
+      // Register initial condition.
+      Prandtl::ConditionFactory::Instance().RegisterInitialCondition5("LTEVortexIC", LTEVortexIC);
+    }
+  };
+  // Global static instance to ensure registration happens at startup.
+  static RegisterLTEVortex regLTEVortex;
+
+  // LTE Blob initial condition
+  std::function<void(const mfem::Vector&, mfem::Vector&)> LTEBlobIC(mfem::real_t radius,
+								    mfem::real_t T_inf,
+								    mfem::real_t T_blob,
+								    mfem::real_t P_inf)
+  {
+    return [=](const mfem::Vector &x, mfem::Vector &y)
+    {
+      MFEM_ASSERT(x.Size() == 2, "");
+      
+      const mfem::real_t xc = 0.0;
+      const mfem::real_t yc = 0.0;
+      
+      mfem::real_t dx = x(0) - xc;
+      mfem::real_t dy = x(1) - yc;
+      
+      mfem::real_t r2rad = (dx*dx + dy*dy) / (radius * radius);
+      
+      const mfem::real_t exp_full = std::exp(-r2rad);
+      
+      // Quiescent velocity field
+      const mfem::real_t velX = 0.0;
+      const mfem::real_t velY = 0.0;
+      const mfem::real_t vel2 = velX * velX + velY * velY;
+      
+      // Gaussian temperature perturbation
+      const mfem::real_t T = T_inf + (T_blob - T_inf) * exp_full;
+      
+      mfem::real_t R_gas = 287.05;
+      const mfem::real_t gamma = 1.4;
+      
+      const mfem::real_t den   = P_inf / (R_gas * T);
+      const mfem::real_t rhoe  = P_inf / (gamma-1.0);
+      const mfem::real_t rhoE  = rhoe + 0.5 * den * vel2;
+      
+      y(0) = den;
+      y(1) = den * velX;
+      y(2) = den * velY;
+      y(3) = rhoE;
+    };
+  }
+  
+  // Registration helper that automatically registers these functions
+  struct RegisterLTEBlob
+  {
+    RegisterLTEBlob()
+    {
+      // Register initial condition.
+      Prandtl::ConditionFactory::Instance().RegisterInitialCondition4("LTEBlobIC", LTEBlobIC);
+    }
+  };
+
+  // Global static instance to ensure registration happens at startup.
+  static RegisterLTEBlob regLTEBlob;
+  
   // Taylor Green Vortex initial condition
   std::function<void(const mfem::Vector&, mfem::Vector&)> TaylorGreenVortexIC(mfem::real_t gamma, mfem::real_t Ma)
   {
