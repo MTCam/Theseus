@@ -32,6 +32,9 @@ MFEM_REF="${MFEM_REF:-master}"
 PLATO_REPO="${PLATO_REPO:-https://github.com/chess-uiuc/plato.git}"
 PLATO_REF="${PLATO_REF:-main}"
 
+THERMO_DATABASE_REPO="${THERMO_DATABASE_REPO:-https://github.com/chess-uiuc/database.git}"
+THERMO_DATABASE_REF="${THERMO_DATABASE_REF:-main}"
+
 mkdir -p "$SRC_DIR" "$BUILD_DIR" "$PREFIX" "$LOG_DIR"
 
 STAMP="$(date +%Y%m%d-%H%M%S)"
@@ -135,22 +138,25 @@ build_metis() {
 
 build_plato() {
     local src="$SRC_DIR/plato"
-    CONFIGURE_OPTS=""
-    if [[ "$(uname -s)" == "Darwin" ]]; then
-	SDKROOT="$(xcrun --show-sdk-path)"
-	export CFLAGS="-isysroot $SDKROOT"
-	export CXXFLAGS="-isysroot $SDKROOT"
-	export LDFLAGS="-isysroot $SDKROOT -L$SDKROOT/usr/lib"
-    fi
 
     cd "$src"
 
     run_logged "plato-distclean" make distclean || true
     run_logged "plato-autogen" ./autogen.sh
-    run_logged "plato-config" ./configure "$CONFIGURE_OPTS" --prefix="$PREFIX"
+    run_logged "plato-config" ./configure --prefix="$PREFIX"
     run_logged "plato-build" make
     run_logged "plato-install" make install
 
+    cd - >/dev/null
+}
+
+build_thermo_database() {
+    local src="$SRC_DIR/database"
+    cd $SRC_DIR
+    local asrc="$(pwd)"
+
+    cd "$PREFIX"
+    ln -s "${asrc}/database" .
     cd - >/dev/null
 }
 
@@ -249,12 +255,14 @@ record_final_summary() {
 record_system_info
 
 clone_or_update "$PLATO_REPO" "$PLATO_REF" "$SRC_DIR/plato"
+clone_or_update "$THERMO_DATABASE_REPO" "$THERMO_DATABASE_REF" "$SRC_DIR/database"
 clone_or_update "$GKLIB_REPO" "$GKLIB_REF" "$SRC_DIR/GKlib"
 clone_or_update "$METIS_REPO" "$METIS_REF" "$SRC_DIR/METIS"
 clone_or_update "$HYPRE_REPO" "$HYPRE_REF" "$SRC_DIR/hypre"
 clone_or_update "$MFEM_REPO" "$MFEM_REF" "$SRC_DIR/mfem"
 
 build_plato
+build_thermo_database
 build_gklib
 build_metis
 build_hypre

@@ -78,12 +78,15 @@ if(THESEUS_WITH_PLATO)
   target_compile_definitions(theseus PRIVATE USE_PLATO)
   target_link_libraries(theseus PRIVATE Plato::Plato)
 
+  # This bit is needed because PLATO does not properly
+  # provide its required libraries. PLATO should be
+  # updated to use pkg-config, or equiv; then this
+  # Fortran stuff can go away.
   if(CMAKE_Fortran_IMPLICIT_LINK_LIBRARIES)
     target_link_libraries(theseus PRIVATE
       ${CMAKE_Fortran_IMPLICIT_LINK_LIBRARIES}
     )
   endif()
-
   if(CMAKE_Fortran_IMPLICIT_LINK_DIRECTORIES)
     target_link_directories(theseus PRIVATE
       ${CMAKE_Fortran_IMPLICIT_LINK_DIRECTORIES}
