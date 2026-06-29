@@ -42,6 +42,21 @@ jobs:
           chmod 600 ~/.ssh/plato_key
           chmod 600 ~/.ssh/database_key
           ssh-keyscan github.com >> ~/.ssh/known_hosts
+          cat > ~/.ssh/config <<'EOF'
+          Host github-plato
+            HostName github.com
+            User git
+            IdentityFile ~/.ssh/plato_key
+            IdentitiesOnly yes
+
+          Host github-database
+            HostName github.com
+            User git
+            IdentityFile ~/.ssh/database_key
+            IdentitiesOnly yes
+          EOF
+
+          chmod 600 ~/.ssh/config
 
       - name: Set up Python
         uses: actions/setup-python@v5
