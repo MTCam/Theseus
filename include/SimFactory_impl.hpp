@@ -165,7 +165,7 @@ namespace Theseus {
       } else if(use_lte){ 
       std::string mixture(runtime.value("gas_mixture", "air5"));
       std::string solver(runtime.value("plato_solver", "LTE_table_rhoT_(air5)"));
-      std::string path(runtime.value("database_path", ""));
+      std::string path(runtime.value("database_path", "empty"));
       std::string rho_dist(runtime.value("rho_dist", "log"));
       std::string T_dist(runtime.value("T_dist", "log"));
       int N_rho    = runtime.value("N_rho", 101);
@@ -204,7 +204,8 @@ namespace Theseus {
       if(mfem::Mpi::Root())
 	{
 	  std::cout << "Constructing LTE table for " << mixture
-		    << " with solver " << solver << std::endl;
+		    << " with solver " << solver << std::endl
+		    << "LTE Database: " << path << std::endl;
 	  std::string empty_str("empty");
 	  plato_initialize(solver.c_str(), mixture.c_str(), empty_str.c_str(), empty_str.c_str(), path.c_str());
 	  Theseus::fill_lte_table(lteTables.L, lteTableData.rho_grid.GetData(), lteTableData.T_grid.GetData(),
@@ -216,8 +217,9 @@ namespace Theseus {
 	  plato_finalize();
 	}
 #else
+      // TODO: Eventually, maybe run with pre-generated tables.
       if(mfem::Mpi::Root()){
-	std::cerr << "LTE runs *must* have plato support." << std::endl;
+	std::cerr << "LTE runs *must* have Theseus build with PLATO support (-DTHESEUS_WITH_PLATO)" << std::endl;
       }
       return nullptr;
 #endif
@@ -251,10 +253,14 @@ namespace Theseus {
 	      Theseus::PhysicsTraits<Theseus::LTEGas,
 				     Theseus::HLLFlux::InviscidFlux>;
 	    
-	    return MakeTypedRHSOperator<Physics, Theseus::LTEGas>(inviscid, runtime,
-								  vfes, fes0, pmesh, eta, alpha, grad_u,
-								  indicator, r_gf, alpha_max, gas_model,
-								  gasModelName, numFluxName);
+	    auto rhsOp = MakeTypedRHSOperator<Physics, Theseus::LTEGas>(inviscid, runtime,
+									vfes, fes0, pmesh, eta, alpha, grad_u,
+									indicator, r_gf, alpha_max, gas_model,
+									gasModelName, numFluxName);
+	    RHSOperator<Physics> *lteRHSOp = dynamic_cast<RHSOperator<Physics> *>(rhsOp.get());
+	    auto &operator_cache = lteRHSOp->GetOperatorCacheReference();
+	    operator_cache.lteTableData = std::move(lteData);
+	    return rhsOp;
 	  }
 	else if (use_llf)
 	  {
@@ -263,10 +269,15 @@ namespace Theseus {
 	      Theseus::PhysicsTraits<Theseus::LTEGas,
 				     Theseus::LaxFriedrichsFlux::InviscidFlux>;
 
-	    return MakeTypedRHSOperator<Physics, Theseus::LTEGas>(inviscid, runtime,
-								  vfes, fes0, pmesh, eta, alpha, grad_u,
-								  indicator, r_gf, alpha_max, gas_model,
-								  gasModelName, numFluxName);
+	    auto rhsOp = MakeTypedRHSOperator<Physics, Theseus::LTEGas>
+	      (inviscid, runtime,vfes, fes0, pmesh, eta, alpha, grad_u,
+	       indicator, r_gf, alpha_max, gas_model,
+	       gasModelName, numFluxName);
+
+	    RHSOperator<Physics> *lteRHSOp = dynamic_cast<RHSOperator<Physics> *>(rhsOp.get());
+	    auto &operator_cache = lteRHSOp->GetOperatorCacheReference();
+	    operator_cache.lteTableData = std::move(lteData);
+	    return rhsOp;
 	  }
 	else {
 	  std::cerr << "Error: Invalid Numerical Flux Type specified: "

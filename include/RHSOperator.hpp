@@ -153,6 +153,8 @@ namespace Theseus
       operator_cache.alpha = alpha_;
     }
 
+    OperatorCache &GetOperatorCacheReference(){ return operator_cache; };
+
     virtual ~RHSOperator() = default;
     void Finalize(mfem::real_t time = 0) override;
 

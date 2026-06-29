@@ -33,6 +33,7 @@ message(STATUS "MFEM compile defs = ${_mfem_defs}")
 message(STATUS "MFEM link libs = ${_mfem_libs}")
 
 if (THESEUS_WITH_PLATO)
+   enable_language(Fortran)
    message(STATUS "Build ${PROJECT_NAME} with PLATO API enabled.")
    find_library(PLATO_LIBRARY
      NAMES plato Plato
@@ -76,6 +77,18 @@ endif()
 if(THESEUS_WITH_PLATO)
   target_compile_definitions(theseus PRIVATE USE_PLATO)
   target_link_libraries(theseus PRIVATE Plato::Plato)
+
+  if(CMAKE_Fortran_IMPLICIT_LINK_LIBRARIES)
+    target_link_libraries(theseus PRIVATE
+      ${CMAKE_Fortran_IMPLICIT_LINK_LIBRARIES}
+    )
+  endif()
+
+  if(CMAKE_Fortran_IMPLICIT_LINK_DIRECTORIES)
+    target_link_directories(theseus PRIVATE
+      ${CMAKE_Fortran_IMPLICIT_LINK_DIRECTORIES}
+    )
+  endif()
 endif()
 
 # --- Python Script for Compile Definitions ---

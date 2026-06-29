@@ -29,6 +29,7 @@
 
         "ser_ref_levels": 3,
 
+	"gas_model": "lte",
         "gas_mixture": "air_5",
         "gas_composition": "N:0.79, O:0.21",
         "N_rho": 1000,
@@ -38,7 +39,7 @@
         "e_min": 170000.0,
         "e_max": 240000.0,
 
-        "mesh_file": "LTEBlob.mesh",
+        "mesh_file": "../../TestCases/LTE/Euler/LTEBlob/LTEBlob.mesh",
         "conditions":
         {
             "initial_conditions":
@@ -54,7 +55,7 @@
                 "function": "LTEBlobIC"
             }
         },
-        "numerical_flux": "Chandrashekar",
+        "numerical_flux": "lfr",
         "ode_solver": "RK3SSP"
     }
 }
