@@ -33,6 +33,16 @@ jobs:
           echo "CXX=mpicxx" >> $GITHUB_ENV
           echo "FC=mpifort" >> $GITHUB_ENV
 
+      - name: Configure SSH for private deps
+        run: |
+          mkdir -p ~/.ssh
+          chmod 700 ~/.ssh
+          echo "${{ secrets.PLATO_DEPLOY_KEY }}" > ~/.ssh/plato_key
+          echo "${{ secrets.THERMO_DATABASE_DEPLOY_KEY }}" > ~/.ssh/database_key
+          chmod 600 ~/.ssh/plato_key
+          chmod 600 ~/.ssh/database_key
+          ssh-keyscan github.com >> ~/.ssh/known_hosts
+
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
@@ -46,6 +56,9 @@ jobs:
           pip install -r ci-resources/requirements-ci.txt
 
       - name: Build dependency submodules (HYPRE, METIS, MFEM)
+        env:
+          PLATO_REPO: git@github.com:chess-uiuc/plato.git
+          THERMO_DATABASE_REPO: git@github.com:chess-uiuc/database.git
         run: |
           bash ./scripts/install-deps.sh
 
