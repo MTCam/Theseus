@@ -33,12 +33,6 @@ namespace Theseus {
     // MFEM_VERIFY(cache.face_wt_plus.Size()  == nfaces*nfp, "w_plus size mismatch");
   }
 
-  template<typename GasModelT, typename DeviceCacheT>
-  void SetupGasModel(GasModelT &gas_model, DeviceCacheT &device_cache)
-  {
-    device_cache.gas = gas_model;
-  }
-
   template<typename CacheT>
   void GetDiscretizationInfo(mfem::FiniteElementSpace *fes, CacheT *cache)
   {
@@ -838,7 +832,7 @@ namespace Theseus {
     device_cache.bndWaveSpeed_d = cache.bndWaveSpeed.ReadWrite();
 
     // POD gas model
-    device_cache.gas = cache.gas;
+    device_cache.gas = cache.gas.to_device(cache);
     device_cache.iflux = cache.iflux;
 
 #ifdef SUBCELL_FV_BLENDING

@@ -257,6 +257,24 @@ namespace Theseus
       }
     }
 
+    template<typename InStateView, typename OutStateView>
+    inline void primitive_to_conserved(const PhysicsConstants &phys, const StateLayout &L,
+                                       const InStateView &prim, OutStateView &cons) const
+    {
+      const mfem::real_t rho   = prim.mass(L);
+      const int dim    = L.dim;
+      mfem::real_t v2        = 0.0;
+
+      cons.set_mass(L, rho);
+      for(int d = 0; d < dim; d++)
+      {
+        cons.set_momentum(L, d, rho*prim.velocity(L, d));
+        v2 += prim.velocity(L,d)*prim.velocity(L,d);
+      }
+      mfem::real_t rhoe = prim.pressure(L) / (phys.gamma-1.);
+      cons.set_energy(L, rhoe + 0.5 * rho * v2);
+    }
+
     // TODO: Consider whether this is needed/convenient
     // It *can be* nice to have here, but kind of out-of-place
     template<typename StateView>

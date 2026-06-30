@@ -19,6 +19,7 @@ namespace Theseus
     using InviscidFlux = InvFluxT;
   };
 
+  // TODO: Update for LTE Tables
   std::unique_ptr<Theseus::RHSOperatorBase>
   MakeRHSOperator(const nlohmann::json& runtime,
 		  std::shared_ptr<mfem::ParFiniteElementSpace> vfes,

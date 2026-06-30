@@ -38,6 +38,12 @@ namespace Theseus
       : phys(phys_in), L(L_in)
     { };
 
+    template<typename HostDataT>
+    MFEM_HOST_DEVICE GasModel<EOSImpl, TransportImpl> to_device(HostDataT &host_data) {
+      GasModel<EOSImpl, TransportImpl> retVal(phys,L,eos,transport);
+      return retVal;
+    }
+
     // Utilities and constants etc
     MFEM_HOST_DEVICE
     inline int num_equations() const
@@ -189,6 +195,13 @@ namespace Theseus
       return eos.entropy_to_conserved(phys, L, Se, Sc);
     }
 
+    template<typename InStateView, typename OutStateView>
+    MFEM_HOST_DEVICE
+    inline void primitive_to_conserved(const InStateView &Sp, OutStateView &Sc) const
+    {
+      return eos.entropy_to_conserved(phys, L, Sp, Sc);
+    }
+ 
     // --- Transport -----------------------------------------------------------
 
     template<typename StateView>

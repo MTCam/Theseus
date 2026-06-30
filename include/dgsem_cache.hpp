@@ -7,6 +7,7 @@
 
 #include "mfem.hpp"
 #include "GasModel.hpp"
+#include "LTEGasModel.hpp"
 #include "bc_cache_utilities.hpp"
 
 namespace Theseus
@@ -109,6 +110,7 @@ namespace Theseus
     mutable mfem::Vector bndWaveSpeed; // size nbnd faces
     OperatorGasModel gas;
     InviscidFlux iflux;
+    std::unique_ptr<Theseus::LTETable::Data> lteTableData;
 
 #ifdef SUBCELL_FV_BLENDING
     mfem::Vector subcellMetricXi;
