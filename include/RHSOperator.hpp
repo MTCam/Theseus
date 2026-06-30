@@ -3,7 +3,6 @@
 #include "DGSEMIntegrator.hpp"
 #include "ModalBasis.hpp"
 #include "Indicator.hpp"
-#include "BasicOperations.hpp"
 #include "GasModel.hpp"
 #include "dgsem_cache_utilities.hpp"
 #include "bc_cache_utilities.hpp"
@@ -152,6 +151,8 @@ namespace Theseus
       operator_cache.gas = *gas;
       operator_cache.alpha = alpha_;
     }
+
+    OperatorCache &GetOperatorCacheReference(){ return operator_cache; };
 
     virtual ~RHSOperator() = default;
     void Finalize(mfem::real_t time = 0) override;

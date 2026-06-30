@@ -5,6 +5,130 @@
 namespace Prandtl
 {
 
+  // Isentropic Vortex initial condition
+  std::function<void(const mfem::Vector&, mfem::Vector&)> LTEVortexIC(mfem::real_t radius,
+								      mfem::real_t vel_inf,
+								      mfem::real_t beta,
+								      mfem::real_t rho_inf,
+								      mfem::real_t temp_inf)
+  {
+    return [=](const mfem::Vector &x, mfem::Vector &y)
+    {
+      MFEM_ASSERT(x.Size() == 2, "");
+
+      const mfem::real_t xc = 0.0;
+      const mfem::real_t yc = 0.0;
+
+      // Using CPG constants only to shape the initial field.
+      const mfem::real_t gamma = 1.4;
+      const mfem::real_t R_gas = 287.05;
+      const mfem::real_t gm1   = gamma - 1.0;
+      const mfem::real_t cp    = gamma * R_gas / gm1;
+
+      // using the perfect-gas relations
+      const mfem::real_t pres_inf = rho_inf * R_gas * temp_inf;
+
+      mfem::real_t dx = x(0) - xc;
+      mfem::real_t dy = x(1) - yc;
+
+      mfem::real_t r2rad = (dx*dx + dy*dy) / (radius * radius);
+
+      const mfem::real_t exp_half = std::exp(-0.5 * r2rad);
+      const mfem::real_t exp_full = std::exp(-r2rad);
+
+      // Vortex velocity field
+      const mfem::real_t velX = vel_inf * (1.0 - beta * dy / radius * exp_half);
+      const mfem::real_t velY = vel_inf * (      beta * dx / radius * exp_half);
+      const mfem::real_t vel2 = velX * velX + velY * velY;
+
+      // Gaussian temperature perturbation
+      const mfem::real_t temp =
+	temp_inf - 0.5 * (vel_inf * beta) * (vel_inf * beta) / cp * exp_full;
+
+      // Safety clamp so the IC never goes nonphysical
+      const mfem::real_t temp_safe = std::max(temp, 0.2 * temp_inf);
+
+      // CPG isentropic relations used only to generate the spatial field
+      const mfem::real_t den  = rho_inf * std::pow(temp_safe / temp_inf, 1.0 / gm1);
+      const mfem::real_t pres = pres_inf * std::pow(temp_safe / temp_inf, gamma / gm1);
+
+      const mfem::real_t rhoe = pres / gm1;
+      const mfem::real_t rhoE = rhoe + 0.5 * den * vel2;
+
+      y(0) = den;
+      y(1) = den * velX;
+      y(2) = den * velY;
+      y(3) = rhoE;
+    };
+  }
+
+  // Registration helper that automatically registers these functions
+  struct RegisterLTEVortex
+  {
+    RegisterLTEVortex()
+    {
+      // Register initial condition.
+      Prandtl::ConditionFactory::Instance().RegisterInitialCondition5("LTEVortexIC", LTEVortexIC);
+    }
+  };
+  // Global static instance to ensure registration happens at startup.
+  static RegisterLTEVortex regLTEVortex;
+
+  // LTE Blob initial condition
+  std::function<void(const mfem::Vector&, mfem::Vector&)> LTEBlobIC(mfem::real_t radius,
+								    mfem::real_t T_inf,
+								    mfem::real_t T_blob,
+								    mfem::real_t P_inf)
+  {
+    return [=](const mfem::Vector &x, mfem::Vector &y)
+    {
+      MFEM_ASSERT(x.Size() == 2, "");
+
+      const mfem::real_t xc = 0.0;
+      const mfem::real_t yc = 0.0;
+
+      mfem::real_t dx = x(0) - xc;
+      mfem::real_t dy = x(1) - yc;
+
+      mfem::real_t r2rad = (dx*dx + dy*dy) / (radius * radius);
+
+      const mfem::real_t exp_full = std::exp(-r2rad);
+
+      // Quiescent velocity field
+      const mfem::real_t velX = 0.0;
+      const mfem::real_t velY = 0.0;
+      const mfem::real_t vel2 = velX * velX + velY * velY;
+
+      // Gaussian temperature perturbation
+      const mfem::real_t T = T_inf + (T_blob - T_inf) * exp_full;
+
+      mfem::real_t R_gas = 287.05;
+      const mfem::real_t gamma = 1.4;
+
+      const mfem::real_t den   = P_inf / (R_gas * T);
+      const mfem::real_t rhoe  = P_inf / (gamma-1.0);
+      const mfem::real_t rhoE  = rhoe + 0.5 * den * vel2;
+
+      y(0) = den;
+      y(1) = den * velX;
+      y(2) = den * velY;
+      y(3) = rhoE;
+    };
+  }
+
+  // Registration helper that automatically registers these functions
+  struct RegisterLTEBlob
+  {
+    RegisterLTEBlob()
+    {
+      // Register initial condition.
+      Prandtl::ConditionFactory::Instance().RegisterInitialCondition4("LTEBlobIC", LTEBlobIC);
+    }
+  };
+
+  // Global static instance to ensure registration happens at startup.
+  static RegisterLTEBlob regLTEBlob;
+
   // Taylor Green Vortex initial condition
   std::function<void(const mfem::Vector&, mfem::Vector&)> TaylorGreenVortexIC(mfem::real_t gamma, mfem::real_t Ma)
   {
@@ -21,7 +145,7 @@ namespace Prandtl
       p = p0 + 1.0 / 16.0 * (std::cos(2.0 * x(0)) + std::cos(2.0 * x(1))) * (std::cos(2.0 * x(2)) + 2);
 
       energy = p / (gamma - 1.0) + 0.5 * den * (velX * velX + velY * velY + velZ * velZ);
-  
+
       y(0) = den;
       y(1) = den * velX;
       y(2) = den * velY;
@@ -62,7 +186,7 @@ namespace Prandtl
       p = p0 + 0.25 * (std::cos(2.0 * x(0)) + std::cos(2.0 * x(1)));
 
       energy = p / (gamma - 1.0) + 0.5 * den * (velX * velX + velY * velY);
-  
+
       y(0) = den;
       y(1) = den * velX;
       y(2) = den * velY;
@@ -152,7 +276,7 @@ namespace Prandtl
 										     LidDrivenCavityWallVelBCFunction);
       Prandtl::ConditionFactory::Instance().RegisterVectorFunctionBoundaryCondition2("LidDrivenCavityLidVelBCFunction",
 										     LidDrivenCavityLidVelBCFunction);
-        
+
       // Register boundary conditions with constant scalars/vectors.
       Prandtl::ConditionFactory::Instance().RegisterScalarBoundaryCondition("LidDrivenCavityAdiaBCScalar",
 									    LidDrivenCavityAdiaBCScalar);
@@ -223,33 +347,33 @@ namespace Prandtl
       MFEM_ASSERT(x.Size() == 2, "");
 
       const mfem::real_t xc = 0.0, yc = 0.0;
-  
+
       // Nice units
       const mfem::real_t vel_inf = 1.;
       const mfem::real_t den_inf = 1.;
-  
+
       // Derive remainder of background state from this and Minf
       const mfem::real_t pres_inf = (den_inf / gamma) * (vel_inf / Minf) * (vel_inf / Minf);
       const mfem::real_t temp_inf = pres_inf / (den_inf * R_gas);
-  
+
       mfem::real_t r2rad = 0.0;
       r2rad += (x(0) - xc) * (x(0) - xc);
       r2rad += (x(1) - yc) * (x(1) - yc);
       r2rad /= (radius * radius);
-  
+
       const mfem::real_t shrinv1 = 1.0 / (gamma - 1.0);
-  
+
       const mfem::real_t velX = vel_inf * (1 - beta * (x(1) - yc) / radius * std::exp(-0.5 * r2rad));
       const mfem::real_t velY = vel_inf * beta * (x(0) - xc) / radius * std::exp(-0.5 * r2rad);
       const mfem::real_t vel2 = velX * velX + velY * velY;
-  
+
       const mfem::real_t specific_heat = R_gas * gamma * shrinv1;
       const mfem::real_t temp = temp_inf - 0.5 * (vel_inf * beta) * (vel_inf * beta) / specific_heat * std::exp(-r2rad);
-  
+
       const mfem::real_t den = den_inf * std::pow(temp / temp_inf, shrinv1);
       const mfem::real_t pres = den * R_gas * temp;
       const mfem::real_t energy = shrinv1 * pres / den + 0.5 * vel2;
-  
+
       y(0) = den;
       y(1) = den * velX;
       y(2) = den * velY;
@@ -338,7 +462,7 @@ namespace Prandtl
 	  y(2) = 0.0;
 	  y(3) = 1.0 * gammaM1Inverse;
         }
-    };    
+    };
   }
 
   // Double Mach reflection boundary condition for top boundary
@@ -367,7 +491,7 @@ namespace Prandtl
 
   // Double Mach Reflection conservative state boundary condition vector for left and bottom boundaries
   const Prandtl::BC_Vector DoubleMachReflectionLeftBottom1BCVector({8.0, 8.0 * 7.144709581221619, -8.0 * 4.125,
-      116.5 * 1.0 / (1.4 - 1.0) + 0.5 * 8.0 * (7.144709581221619 * 7.144709581221619 + 4.125 * 4.125)}); 
+      116.5 * 1.0 / (1.4 - 1.0) + 0.5 * 8.0 * (7.144709581221619 * 7.144709581221619 + 4.125 * 4.125)});
 
   // Registration helper that automatically registers these functions
   struct RegisterDoubleMachReflection
@@ -376,7 +500,7 @@ namespace Prandtl
     {
       // Register initial condition.
       Prandtl::ConditionFactory::Instance().RegisterInitialCondition1("DoubleMachReflectionIC", DoubleMachReflectionIC);
-        
+
       // Register boundary conditions
       Prandtl::ConditionFactory::Instance().RegisterVectorBoundaryCondition("DoubleMachReflectionLeftBottom1BCVector",
 									    DoubleMachReflectionLeftBottom1BCVector);
@@ -393,7 +517,7 @@ namespace Prandtl
   {
     static mfem::real_t gamma = 1.4;
     static mfem::real_t R_gas = 287.05;
-    static mfem::real_t Ma = 2.0;                                      // Mach number 
+    static mfem::real_t Ma = 2.0;                                      // Mach number
     static mfem::real_t p0 = 303975;                                   // stagnation pressure (Pa)
     static mfem::real_t a0 = 360.63;                                   // stagnation speed (m/s)
     static mfem::real_t C = 1 + 0.5 * (gamma-1) * Ma * Ma;             // 1 + (gamma-1)/2 * M^2
@@ -407,21 +531,21 @@ namespace Prandtl
     return [] (const mfem::Vector &x, mfem::Vector &y)
     {
       MFEM_ASSERT(x.Size() == 2, "Nagashima Ramjet is a 2D problem");
-      
+
       y(0) = rhoa;
       y(1) = rhoa * ua;
       y(2) = 0.0;
       y(3) = E;
-      
+
     };
   }
-  
+
   // Inlet velocity ramping boundary condition
   std::function<void(const mfem::Vector&, mfem::real_t, mfem::Vector&)>NagashimaRampingInletBC(mfem::real_t t_ramp)
   {
     static mfem::real_t gamma = 1.4;
     static mfem::real_t R_gas = 287.05;
-    static mfem::real_t Ma = 2.0;                                      // Mach number 
+    static mfem::real_t Ma = 2.0;                                      // Mach number
     static mfem::real_t p0 = 303975;                                   // stagnation pressure (Pa)
     static mfem::real_t a0 = 360.63;                                   // stagnation speed (m/s)
     static mfem::real_t C = 1 + 0.5 * (gamma-1) * Ma * Ma;             // 1 + (gamma-1)/2 * M^2
@@ -443,7 +567,7 @@ namespace Prandtl
       y(3) = pi/(gamma-1.0) + 0.5*rhoa*u*u;
     };
   }
-  
+
   // Registration helper that automatically registers these functions
   struct RegisterNagashima
   {
@@ -451,7 +575,7 @@ namespace Prandtl
     {
       static mfem::real_t gamma = 1.4;
       static mfem::real_t R_gas = 287.05;
-      static mfem::real_t Ma = 2.0;                                      // Mach number 
+      static mfem::real_t Ma = 2.0;                                      // Mach number
       static mfem::real_t p0 = 303975;                                   // stagnation pressure (Pa)
       static mfem::real_t a0 = 360.63;                                   // stagnation speed (m/s)
       static mfem::real_t C = 1 + 0.5 * (gamma-1) * Ma * Ma;             // 1 + (gamma-1)/2 * M^2
@@ -463,10 +587,10 @@ namespace Prandtl
       static mfem::real_t rhoa = pa / (R_gas * Ta);                      // freestream density
       static mfem::real_t E = pi/(gamma - 1.0) + 0.5 * rhoa * ua * ua;   // Specific total energy
       // Subsonic outflow
-      const mfem::real_t NagashimaOutletPressure = pa; 
+      const mfem::real_t NagashimaOutletPressure = pa;
       // Supersonic Freestream boundary condition
       const Prandtl::BC_Vector NagashimaInletBCVector({rhoa, rhoa * ua, 0.0, E});
-      
+
       // Register initial condition.
       Prandtl::ConditionFactory::Instance().RegisterInitialCondition0("NagashimaIC", NagashimaIC);
       // Register boundary condition.
@@ -476,11 +600,11 @@ namespace Prandtl
 										       NagashimaRampingInletBC);
       Prandtl::ConditionFactory::Instance().RegisterScalarBoundaryCondition("NagashimaOutletPressure",
 									    NagashimaOutletPressure);
-      
+
     }
   };
   // Global static instance to ensure registration happens at startup.
-  static RegisterNagashima registerNagashima;  
+  static RegisterNagashima registerNagashima;
 
 
   // Kelvin Helmholtz initial condition
@@ -518,7 +642,7 @@ namespace Prandtl
       //     y(2) = 0.01 * std::sin(M_PI * x(0));;
       //     y(3) = 2.5 * gammaM1Inverse + 0.5 * (y(1) * y(1) + y(2) * y(2)) / y(0);
       // }
-    }; 
+    };
   }
 
   // Registration helper that automatically registers these functions
@@ -567,7 +691,7 @@ namespace Prandtl
   //         mfem::real_t s    = std::tanh((t - 0.5*t_ramp)/(0.1*t_ramp));
   //         mfem::real_t ramp = std::clamp(0.5*(1.0 + s), 0.0, 1.0);
   //         mfem::real_t u   = Ma * a * ramp;
-  //         mfem::real_t p   = 1.0; 
+  //         mfem::real_t p   = 1.0;
   //         y(0) = rho;
   //         y(1) = rho*u;
   //         y(2) = 0.;
@@ -704,7 +828,7 @@ namespace Prandtl
     {
       // Register initial condition.
       Prandtl::ConditionFactory::Instance().RegisterInitialCondition1("Problem123IC", Problem123IC);
-        
+
       // Register boundary condition for left and right boundaries.
       Prandtl::ConditionFactory::Instance().RegisterVectorFunctionBoundaryCondition1("Problem123LeftBC", Problem123IC);
       Prandtl::ConditionFactory::Instance().RegisterVectorFunctionBoundaryCondition1("Problem123RightBC", Problem123IC);
@@ -749,7 +873,7 @@ namespace Prandtl
     {
       // Register initial condition.
       Prandtl::ConditionFactory::Instance().RegisterInitialCondition1("LaxShockTubeIC", LaxShockTubeIC);
-        
+
       // Register boundary condition for left and right boundaries.
       Prandtl::ConditionFactory::Instance().RegisterVectorFunctionBoundaryCondition1("LaxShockTubeLeftBC", LaxShockTubeIC);
       Prandtl::ConditionFactory::Instance().RegisterVectorFunctionBoundaryCondition1("LaxShockTubeRightBC", LaxShockTubeIC);
@@ -794,7 +918,7 @@ namespace Prandtl
     {
       // Register initial condition.
       Prandtl::ConditionFactory::Instance().RegisterInitialCondition1("ModifiedSodShockTubeIC", ModifiedSodShockTubeIC);
-        
+
       // Register boundary condition for left and right boundaries.
       Prandtl::ConditionFactory::Instance().RegisterVectorFunctionBoundaryCondition1("ModifiedSodShockTubeLeftBC",
 										     ModifiedSodShockTubeIC);
@@ -842,7 +966,7 @@ namespace Prandtl
       // Register initial condition.
       Prandtl::ConditionFactory::Instance().RegisterInitialCondition1("WoodwardColellaBlastWaveCollisionIC",
 								      WoodwardColellaBlastWaveCollisionIC);
-        
+
       // Register boundary condition for left and right boundaries.
       Prandtl::ConditionFactory::Instance().RegisterVectorFunctionBoundaryCondition1("WoodwardColellaBlastWaveCollisionLeftBC",
 										     WoodwardColellaBlastWaveCollisionIC);
@@ -910,7 +1034,7 @@ namespace Prandtl
       density = rho_inf + 0.2 * std::sin(2.0 * M_PI * (x(0) - a_inf * M_inf * t));
       velocity_x = a_inf * M_inf;
       pressure = p_inf;
-        
+
       energy = pressure / (gamma - 1.0) + density * 0.5 * (velocity_x * velocity_x);
 
       y(0) = density;
@@ -1016,7 +1140,7 @@ namespace Prandtl
       // Register initial condition.
       Prandtl::ConditionFactory::Instance().RegisterInitialCondition1("WoodwardColellaBlastWaveLeftIC",
 								      WoodwardColellaBlastWaveLeftIC);
-        
+
       // Register boundary condition for left and right boundaries.
       Prandtl::ConditionFactory::Instance().RegisterVectorFunctionBoundaryCondition1("WoodwardColellaBlastWaveLeftLeftBC",
 										     WoodwardColellaBlastWaveLeftIC);
@@ -1065,7 +1189,7 @@ namespace Prandtl
       // Register initial condition.
       Prandtl::ConditionFactory::Instance().RegisterInitialCondition1("WoodwardColellaBlastWaveRightIC",
 								      WoodwardColellaBlastWaveRightIC);
-        
+
       // Register boundary condition for left and right boundaries.
       Prandtl::ConditionFactory::Instance().RegisterVectorFunctionBoundaryCondition1("WoodwardColellaBlastWaveRightLeftBC",
 										     WoodwardColellaBlastWaveRightIC);
@@ -1113,7 +1237,7 @@ namespace Prandtl
     {
       // Register initial condition.
       Prandtl::ConditionFactory::Instance().RegisterInitialCondition1("SodShockTubeIC", SodShockTubeIC);
-        
+
       // Register boundary condition for left and right boundaries.
       Prandtl::ConditionFactory::Instance().RegisterVectorFunctionBoundaryCondition1("SodShockTubeLeftBC", SodShockTubeIC);
       Prandtl::ConditionFactory::Instance().RegisterVectorFunctionBoundaryCondition1("SodShockTubeRightBC", SodShockTubeIC);

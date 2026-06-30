@@ -82,6 +82,9 @@ namespace Theseus {
       // state to the gasModel.R_gas function. Since we only have ideal atm with fixed R_gas, I am
       // skipping the unnecessary Entropy2Conservative conversion.  
       return (1.0 / (gasModel.R_gas(Se)*Tw));
+
+      // LTE Gas Model wants this one (because it uses dimensional entropy)
+      // return (1.0 / Tw);
     }
 
     struct TotalConditions {
