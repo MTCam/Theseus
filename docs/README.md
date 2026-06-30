@@ -4,6 +4,8 @@ Documentation is a work-in-progress
 
 ## User Guide: See [README](../README.md)
 
+### Coming soon
+
 - Building
 - Running
 - Input files
@@ -12,17 +14,20 @@ Documentation is a work-in-progress
 
 - [Governing equations](theory.md)
 - [DGSEM discretization](discretization.md)
-- Numerical fluxes
-- Boundary conditions
+- [Numerical fluxes](numflux.md)
+- [Boundary conditions](boundaryconditions.md)
 
 ## Developer Guide
 
+### Coming soon
 - Architecture
 - Runtime configuration
 - Physics models
 - Adding new components
 
 ## Verification
+
+### Coming soon
 
 - Isentropic vortex
 - Taylor-Green vortex
