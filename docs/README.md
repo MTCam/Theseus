@@ -17,17 +17,14 @@ Documentation is a work-in-progress
 - [Numerical fluxes](numflux.md)
 - [Boundary conditions](boundaryconditions.md)
 
-## Developer Guide
+## Developer Guide (Coming soon)
 
-### Coming soon
 - Architecture
 - Runtime configuration
 - Physics models
 - Adding new components
 
-## Verification
-
-### Coming soon
+## Verification (Coming soon)
 
 - Isentropic vortex
 - Taylor-Green vortex
