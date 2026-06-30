@@ -11,7 +11,7 @@ Documentation is a work-in-progress
 ## Theory
 
 - [Governing equations](theory.md)
-- DGSEM discretization
+- [DGSEM discretization](discretization.md)
 - Numerical fluxes
 - Boundary conditions
 
