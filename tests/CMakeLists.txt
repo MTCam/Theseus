@@ -1,5 +1,10 @@
+# Copyright (c) 2025-2026 Board of Trustees of the University of Illinois
+#
 # This file is part of the unit testing infrastructure for Theseus
 #
+# SPDX-License-Identifier: MIT
+#
+#################
 # Example on how to add unit tests
 # add_executable(suite_test_exe
 #     unit_test_main.cpp
