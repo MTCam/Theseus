@@ -15,6 +15,9 @@ option(ENABLE_TIMER_BARRIER "MPI_BARRIER in performance timers." OFF)
 option(ENABLE_TIMER_OUTPUT_ALLRANKS "Output timers on all ranks." OFF)
 option(ENABLE_CUDA "Compile CUDA kernels" OFF)
 option(THESEUS_WITH_PLATO "Enable PLATO API for thermo tables" OFF)
+## NOTE: PLATO_DB_PATH can be specified at build-time to customize
+##       the location of the database used by PLATO. Tries to default
+##       to a reasonable location.
 
 find_package(MFEM REQUIRED CONFIG) 
 if (TARGET MFEM::mfem)
@@ -31,6 +34,19 @@ message(STATUS "THESEUS_MFEM_TARGET = ${THESEUS_MFEM_TARGET}")
 message(STATUS "MFEM include dirs = ${_mfem_inc}")
 message(STATUS "MFEM compile defs = ${_mfem_defs}")
 message(STATUS "MFEM link libs = ${_mfem_libs}")
+
+## Set up PLATO's default db path
+# Pick first CMAKE_PREFIX_PATH entry if present.
+list(GET CMAKE_PREFIX_PATH 0 _theseus_first_prefix)
+
+if(_theseus_first_prefix)
+  set(_plato_db_default "${_theseus_first_prefix}/database")
+else()
+  set(_plato_db_default "${CMAKE_CURRENT_BINARY_DIR}/database")
+endif()
+
+set(PLATO_DB_PATH "${_plato_db_default}" CACHE PATH
+    "Default path to the Plato runtime database")
 
 if (THESEUS_WITH_PLATO)
    enable_language(Fortran)
@@ -225,6 +241,16 @@ target_link_libraries(theseus
     PRIVATE
     ${THESEUS_MFEM_TARGET}
     MPI::MPI_CXX
+)
+
+configure_file(
+  ${CMAKE_CURRENT_SOURCE_DIR}/cmake/TheseusConfig.hpp.in
+  ${CMAKE_CURRENT_BINARY_DIR}/generated/TheseusConfig.hpp
+  @ONLY
+)
+
+target_include_directories(theseus PRIVATE
+  ${CMAKE_CURRENT_BINARY_DIR}/generated
 )
 
 if (BUILD_TESTING)

@@ -3,7 +3,9 @@
 #include <cmath>
 #include "Physics.hpp"
 #include "GasState.hpp"
-#include "BasicOperations.hpp"
+#include "LTETable.hpp"
+
+using namespace Theseus::LTETable;
 
 namespace Theseus
 {
@@ -13,6 +15,7 @@ namespace Theseus
   // ============================================================================
   struct LTEGasEOS
   {
+
     // ---- helpers on conservative state --------------------------------------
     template<typename StateView>
     MFEM_HOST_DEVICE
@@ -387,10 +390,10 @@ namespace Theseus
       mfem::real_t e_l    = lteTables.tables.e_grid[l_y]   , e_u   = lteTables.tables.e_grid[u_y];
 
       // Get the corner property values
-      mfem::real_t Q00 = lteTables.tables.inv_table[lteTables.L.lte_property_index(0, l_x, l_y)];
-      mfem::real_t Q01 = lteTables.tables.inv_table[lteTables.L.lte_property_index(0, l_x, u_y)];
-      mfem::real_t Q10 = lteTables.tables.inv_table[lteTables.L.lte_property_index(0, u_x, l_y)];
-      mfem::real_t Q11 = lteTables.tables.inv_table[lteTables.L.lte_property_index(0, u_x, u_y)];
+      mfem::real_t Q00 = lteTables.tables.inv_table[lteTables.L.property_index(0, l_x, l_y)];
+      mfem::real_t Q01 = lteTables.tables.inv_table[lteTables.L.property_index(0, l_x, u_y)];
+      mfem::real_t Q10 = lteTables.tables.inv_table[lteTables.L.property_index(0, u_x, l_y)];
+      mfem::real_t Q11 = lteTables.tables.inv_table[lteTables.L.property_index(0, u_x, u_y)];
 
 
       mfem::real_t wx = (rho  - rho_l)  / (rho_u - rho_l);
@@ -433,10 +436,10 @@ namespace Theseus
       mfem::real_t T_l    = lteTables.tables.T_grid[l_y]   , T_u   = lteTables.tables.T_grid[u_y];
 
       // Get the corner property values
-      mfem::real_t Q00 = lteTables.tables.lte_table[lteTables.L.lte_property_index(property_idx, l_x, l_y)];
-      mfem::real_t Q01 = lteTables.tables.lte_table[lteTables.L.lte_property_index(property_idx, l_x, u_y)];
-      mfem::real_t Q10 = lteTables.tables.lte_table[lteTables.L.lte_property_index(property_idx, u_x, l_y)];
-      mfem::real_t Q11 = lteTables.tables.lte_table[lteTables.L.lte_property_index(property_idx, u_x, u_y)];
+      mfem::real_t Q00 = lteTables.tables.lte_table[lteTables.L.property_index(property_idx, l_x, l_y)];
+      mfem::real_t Q01 = lteTables.tables.lte_table[lteTables.L.property_index(property_idx, l_x, u_y)];
+      mfem::real_t Q10 = lteTables.tables.lte_table[lteTables.L.property_index(property_idx, u_x, l_y)];
+      mfem::real_t Q11 = lteTables.tables.lte_table[lteTables.L.property_index(property_idx, u_x, u_y)];
 
       mfem::real_t wx = (rho  - rho_l)  / (rho_u - rho_l);
       mfem::real_t wy = (T - T_l) / (T_u - T_l);

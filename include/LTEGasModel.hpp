@@ -6,6 +6,8 @@
 #include "LTEEOS.hpp"
 #include "LTETransport.hpp"
 
+using namespace Theseus::LTETable;
+
 namespace Theseus
 {
 
@@ -16,8 +18,8 @@ namespace Theseus
   struct LTEGasModel
   {
 
-    PhysicsConstants phys;
-    StateLayout L;
+    Theseus::PhysicsConstants phys;
+    Theseus::StateLayout L;
     LTETables T;
     EOSImpl eos;
     TransportImpl transport;
@@ -29,13 +31,13 @@ namespace Theseus
 		const LTETables &T_in, const EOSImpl &eos_in, const TransportImpl &tr_in)
       : phys(phys_in), L(L_in), T(T_in), eos(eos_in), transport(tr_in)
     { };
-    
+
     MFEM_HOST_DEVICE
     LTEGasModel(const PhysicsConstants &phys_in, const StateLayout &L_in,
 		const LTETables &T_in)
       : phys(phys_in), L(L_in), T(T_in)
     { };
-    
+
     template<typename HostDataT>
     MFEM_HOST_DEVICE LTEGasModel<EOSImpl, TransportImpl>  to_device(HostDataT &host_data) {
       LTEGasModel<EOSImpl, TransportImpl> retVal(phys, L, T, eos, transport);
@@ -111,21 +113,21 @@ namespace Theseus
     {
       return eos.gamma(phys, L, S, T);
     }
- 
+
     template<typename StateView>
     MFEM_HOST_DEVICE
     inline mfem::real_t cp(const StateView &S) const
     {
       return eos.cp(phys, L, S, T);
     }
-    
+
     template<typename StateView>
     MFEM_HOST_DEVICE
     inline mfem::real_t R_gas(const StateView &S) const
     {
       return eos.R_gas(phys, L, S, T);
     }
- 
+
     template<typename StateView>
     MFEM_HOST_DEVICE
     inline mfem::real_t temperature(const StateView &S) const
@@ -161,7 +163,7 @@ namespace Theseus
     {
       return eos.specific_internal_energy(phys, L, S, T);
     }
-    
+
     template<typename StateView>
     MFEM_HOST_DEVICE
     inline void grad_temperature(const StateView &S,
@@ -170,7 +172,7 @@ namespace Theseus
     {
       return eos.grad_temperature(phys, L, S, grad_r, grad_p, grad_t, T);
     }
- 
+
     template<typename StateView>
     MFEM_HOST_DEVICE
     inline mfem::real_t entropy(const StateView &S) const

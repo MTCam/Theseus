@@ -3,7 +3,6 @@
 #include "DGSEMIntegrator.hpp"
 #include "ModalBasis.hpp"
 #include "Indicator.hpp"
-#include "BasicOperations.hpp"
 #include "GasModel.hpp"
 #include "dgsem_cache_utilities.hpp"
 #include "bc_cache_utilities.hpp"

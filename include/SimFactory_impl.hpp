@@ -10,6 +10,7 @@
 #include "ChandrashekarFlux.hpp"
 #include "HLLFlux.hpp"
 #include "LTETable.hpp"
+#include "TheseusConfig.hpp"
 
 namespace Theseus {
 
@@ -165,7 +166,7 @@ namespace Theseus {
       } else if(use_lte){ 
       std::string mixture(runtime.value("gas_mixture", "air5"));
       std::string solver(runtime.value("plato_solver", "LTE_table_rhoT_(air5)"));
-      std::string path(runtime.value("database_path", "empty"));
+      std::string path(runtime.value("database_path", std::string(Theseus::BuildConfig::PlatoDBPath)));
       std::string rho_dist(runtime.value("rho_dist", "log"));
       std::string T_dist(runtime.value("T_dist", "log"));
       int N_rho    = runtime.value("N_rho", 101);
@@ -176,27 +177,27 @@ namespace Theseus {
       mfem::real_t T_max    = runtime.value("T_max", 35.0);
       mfem::real_t e_min, e_max;
       int num_properties = 9; // CL NOTE : Check LTE EOS
-      auto lteData = std::make_unique<Theseus::LTETableData>();
+      auto lteData = std::make_unique<Theseus::LTETable::Data>();
       auto &lteTableData = *lteData;
-      Theseus::LTETables    lteTables;
+      Theseus::LTETable::LTETables    lteTables;
       lteTableData.lte_table.SetSize(N_rho * N_T * num_properties);
       lteTableData.inv_table.SetSize(N_rho * N_T);
       if(rho_dist == "log")
 	{
-	  Theseus::lte_log_grid(N_rho, rho_min, rho_max, lteTableData.rho_grid);
+	  Theseus::LTETable::log_grid(N_rho, rho_min, rho_max, lteTableData.rho_grid);
 	}
       else
 	{
-	  Theseus::lte_uniform_grid(N_rho, rho_min, rho_max, lteTableData.rho_grid);
+	  Theseus::LTETable::uniform_grid(N_rho, rho_min, rho_max, lteTableData.rho_grid);
 	}
       
       if(T_dist == "log")
 	{
-	  Theseus::lte_log_grid(N_T, T_min, T_max, lteTableData.T_grid);
+	  Theseus::LTETable::log_grid(N_T, T_min, T_max, lteTableData.T_grid);
 	}
       else
 	{
-	  Theseus::lte_uniform_grid(N_T, T_min, T_max, lteTableData.T_grid);
+	  Theseus::LTETable::uniform_grid(N_T, T_min, T_max, lteTableData.T_grid);
 	}
       lteTableData.e_grid.SetSize(N_T);
       lteTables.L.setup(N_rho, N_T);
@@ -206,14 +207,18 @@ namespace Theseus {
 	  std::cout << "Constructing LTE table for " << mixture
 		    << " with solver " << solver << std::endl
 		    << "LTE Database: " << path << std::endl;
+	  if(Theseus::LTETable::check_plato_database_path(path)){
+	    std::cerr << "Plato Database (" << path << ") not found." << std::endl;
+	    return nullptr;
+	  }
 	  std::string empty_str("empty");
 	  plato_initialize(solver.c_str(), mixture.c_str(), empty_str.c_str(), empty_str.c_str(), path.c_str());
-	  Theseus::fill_lte_table(lteTables.L, lteTableData.rho_grid.GetData(), lteTableData.T_grid.GetData(),
-				  lteTableData.lte_table.GetData(), e_min, e_max);
+	  Theseus::LTETable::fill_table(lteTables.L, lteTableData.rho_grid.GetData(), lteTableData.T_grid.GetData(),
+					lteTableData.lte_table.GetData(), e_min, e_max);
 	  std::cout << "Constructing inverse table T = T(rho, e)" << std::endl;
-	  Theseus::lte_uniform_grid(N_T, e_min, e_max, lteTableData.e_grid);
-	  Theseus::fill_inv_lte_table(lteTables.L, lteTableData.rho_grid.GetData(), lteTableData.e_grid.GetData(),
-				      lteTableData.T_grid.GetData(), lteTableData.inv_table.GetData());
+	  Theseus::LTETable::uniform_grid(N_T, e_min, e_max, lteTableData.e_grid);
+	  Theseus::LTETable::fill_inv_table(lteTables.L, lteTableData.rho_grid.GetData(), lteTableData.e_grid.GetData(),
+					    lteTableData.T_grid.GetData(), lteTableData.inv_table.GetData());
 	  plato_finalize();
 	}
 #else
