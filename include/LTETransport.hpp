@@ -10,10 +10,10 @@ namespace Theseus
   // ============================================================================
   // LTETransport: LTE lookup for transport properties
   // ============================================================================
-  
+
   struct LTETransport
   {
-    
+
     template<typename EOSType, typename StateViewType>
     MFEM_HOST_DEVICE
     inline mfem::real_t viscosity(const Theseus::PhysicsConstants &phys,

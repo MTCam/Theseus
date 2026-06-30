@@ -33,7 +33,7 @@ namespace Theseus {
 		       const std::string &gasModelName,
 		       const std::string &numFluxName)
   {
-    
+
     if (inviscid) {
       return std::make_unique<Theseus::EulerOperator<Physics>>(vfes, fes0, pmesh, eta, alpha,
 							       indicator,
@@ -65,13 +65,13 @@ namespace Theseus {
 		  std::shared_ptr<mfem::ParGridFunction> r_gf,
 		  mfem::real_t alpha_max)
   {
-    
+
     std::string gas_model_string =
       to_lower(runtime.value("gas_model", std::string{}));
-    
+
     std::string inv_flux_string =
       to_lower(runtime.value("numerical_flux", std::string{}));
-    
+
     std::string flow_model_string =
       to_lower(runtime.value("flow_model", std::string{}));
 
@@ -80,7 +80,7 @@ namespace Theseus {
       gas_model_string == "cpg" ||
       gas_model_string == "ideal" ||
       gas_model_string == "ideal_gas";
-    
+
     const bool use_lte =
       gas_model_string == "lte";
 
@@ -88,10 +88,10 @@ namespace Theseus {
       inv_flux_string.empty() ||
       inv_flux_string == "chandrashekar" ||
       starts_with(inv_flux_string, "chan");
-    
+
     const bool use_hll =
       inv_flux_string == "hll";
-    
+
     const bool use_llf =
       inv_flux_string == "llf" ||
       inv_flux_string == "lfr" ||
@@ -105,10 +105,10 @@ namespace Theseus {
       starts_with(flow_model_string, "cns")  ||
       starts_with(flow_model_string, "ns");
     const bool inviscid = !viscous;
-  
+
     const int dim = pmesh->Dimension();
     const int num_dofs_scalar = vfes->GetNDofs();
-    
+
     Theseus::PhysicsConstants physics_constants(runtime.value("gamma", 1.4),
 						runtime.value("Pr", 0.72),
 						runtime.value("R_gas", 287.05),
@@ -138,7 +138,7 @@ namespace Theseus {
 	    using Physics =
 	      Theseus::PhysicsTraits<Theseus::IdealGasModel,
 				     Theseus::HLLFlux::InviscidFlux>;
-	    
+
 	    return MakeTypedRHSOperator<Physics, Theseus::IdealGasModel>(inviscid, runtime,
 									 vfes, fes0, pmesh, eta, alpha, grad_u,
 									 indicator, r_gf, alpha_max, gas_model,
@@ -163,7 +163,7 @@ namespace Theseus {
 		    << std::endl;
 	  return nullptr;
 	}
-      } else if(use_lte){ 
+      } else if(use_lte){
       std::string mixture(runtime.value("gas_mixture", "air5"));
       std::string solver(runtime.value("plato_solver", "LTE_table_rhoT_(air5)"));
       std::string path(runtime.value("database_path", std::string(Theseus::BuildConfig::PlatoDBPath)));
@@ -190,7 +190,7 @@ namespace Theseus {
 	{
 	  Theseus::LTETable::uniform_grid(N_rho, rho_min, rho_max, lteTableData.rho_grid);
 	}
-      
+
       if(T_dist == "log")
 	{
 	  Theseus::LTETable::log_grid(N_T, T_min, T_max, lteTableData.T_grid);
@@ -257,7 +257,7 @@ namespace Theseus {
 	    using Physics =
 	      Theseus::PhysicsTraits<Theseus::LTEGas,
 				     Theseus::HLLFlux::InviscidFlux>;
-	    
+
 	    auto rhsOp = MakeTypedRHSOperator<Physics, Theseus::LTEGas>(inviscid, runtime,
 									vfes, fes0, pmesh, eta, alpha, grad_u,
 									indicator, r_gf, alpha_max, gas_model,
@@ -291,7 +291,7 @@ namespace Theseus {
 		    << std::endl;
 	  return nullptr;
 	}
-      
+
     } else {
       std::cerr << "Error: Invalid Gas Model specified: "
 		<< gas_model_string << "\n"
@@ -299,6 +299,6 @@ namespace Theseus {
 		<< std::endl;
       return nullptr;
     }
-    
+
   }
 }

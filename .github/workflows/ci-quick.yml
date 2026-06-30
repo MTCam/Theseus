@@ -70,7 +70,7 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r ci-resources/requirements-ci.txt
 
-      - name: Build dependency submodules (HYPRE, METIS, MFEM)
+      - name: Install TPL Packages (HYPRE, METIS, MFEM, PLATO)
         env:
           PLATO_REPO: git@github-plato:chess-uiuc/plato.git
           THERMO_DATABASE_REPO: git@github-database:chess-uiuc/database.git
@@ -104,7 +104,8 @@ jobs:
             -DCMAKE_PREFIX_PATH=${MFEM_DIR} \
             -DCMAKE_BUILD_RPATH=${MFEM_DIR}/lib \
             -DCMAKE_INSTALL_RPATH=${MFEM_DIR}/lib \
-            -DSUBCELL_FV_BLENDING=ON -DNO_OPT=ON
+            -DSUBCELL_FV_BLENDING=ON -DNO_OPT=ON \
+	    -DTHESEUS_WITH_PLATO=YES
 
       - name: Build Theseus
         run: |

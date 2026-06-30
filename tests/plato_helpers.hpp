@@ -14,7 +14,7 @@ struct PlatoMixture
     real_t cv     = 0.0;
     real_t cp     = 0.0;
     real_t R_eq   = 0.0;
-    real_t gam_eq = 0.0; 
+    real_t gam_eq = 0.0;
     real_t c      = 0.0;
     real_t mu     = 0.0;
     real_t lambda = 0.0;

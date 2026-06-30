@@ -24,7 +24,7 @@ namespace Theseus
     {
       return property_lookup(lteTables.L.R_eq_idx, phys, L, S, lteTables);
     }
- 
+
     template<typename StateView>
     MFEM_HOST_DEVICE
     inline mfem::real_t density(const PhysicsConstants &phys, const StateLayout &L,
@@ -32,7 +32,7 @@ namespace Theseus
     {
       return S.mass(L); // this is "rho" (mass density)
     }
-    
+
     template<typename StateView>
     MFEM_HOST_DEVICE
     inline mfem::real_t rhoE(const PhysicsConstants &phys, const StateLayout &L,
@@ -40,7 +40,7 @@ namespace Theseus
     {
       return S.energy(L);
     }
-    
+
     template<typename StateView>
     MFEM_HOST_DEVICE
     inline mfem::real_t momentum_sq(const PhysicsConstants &phys, const StateLayout &L,
@@ -174,7 +174,7 @@ namespace Theseus
     {
       for(int i = 0; i < L.dim; i++){
         grad_t[i] = grad_p[i]; // CL NOTE : we store T_xi in contiguous gradient array for LTE (W=[rho, u, v, w , T])
-      }     
+      }
     }
 
     template<typename StateView>
@@ -184,7 +184,7 @@ namespace Theseus
     {
       return property_lookup(lteTables.L.c_idx, phys, L, S, lteTables);
     }
-    
+
     template<typename StateView>
     MFEM_HOST_DEVICE
     inline mfem::real_t cv(const PhysicsConstants &phys, const StateLayout &L,
@@ -338,7 +338,7 @@ namespace Theseus
 #endif
 	    }
 	}
-      
+
       return T;
     }
 

@@ -137,7 +137,7 @@ TEST(plato_Temperature_solve_test)
 
     uniform_grid(ny, e_min, e_max, e_grid);
     fill_inv_table(lteT.L, rho_grid.GetData(), e_grid.GetData(), T_grid.GetData(), inv_table.GetData());
-    
+
     lteT.tables = {
       lte_table.HostRead(), inv_table.HostRead(),
       rho_grid.HostRead(), T_grid.HostRead(),
