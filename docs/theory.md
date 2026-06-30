@@ -34,8 +34,8 @@ $$
 \mathbf{q} = -\kappa\nabla T,
 $$
 
-where $T$ is the fluid temperature and $(\mu, \kappa)$ are viscosity and thermal conductivity, respectively. Source terms are supported through $\mathbf{S}$.
+where $T$ is the fluid temperature and $(\mu, \kappa)$ are viscosity and thermal conductivity, respectively. Source terms are supported through $\mathbf{S}$. Theseus supports an inviscid-only RHS using the [EulerOperator](../include/EulerOperator.hpp), and a full viscous RHS with [NSOperator](../include/NSOperator.hpp).
 
-A modular gas model in Theseus implements the transport model and equation of state (EOS), providing transport and thermal properties as a function of the conserved state $\mathbf{Q}$. Theseus currently implements a single-component calorically perfect gas model and is being extended to local thermal equilibrium (LTE) mixtures.
+A modular gas model in Theseus implements the transport model and equation of state (EOS), providing transport and thermal properties as a function of the conserved state $\mathbf{Q}$. Theseus currently implements a single-component calorically perfect gas model ([CPG](../include/GasModel.hpp) and local thermal equilibrium mixture EOS ([LTE](../include/LTEEOS.hpp)).
 
 Theseus employs a nodal DGSEM formulation on tensor-product elements for spatial discretization [4, 5]. The solution strategy follows an entropy-conservative BR1 form [6], and uses explicit $s$-stage Runge-Kutta methods for time advancement.
