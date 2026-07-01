@@ -2,7 +2,7 @@
 //
 // This file is part of Theseus.
 //
-// SPDX-License-Identifier: MIT
+// SPDX-License-Identifier: BSD-3-Clause
 #pragma once
 
 #include "ConditionFactory.hpp"
@@ -12,10 +12,10 @@ namespace Prandtl
 
   // Isentropic Vortex initial condition
   std::function<void(const mfem::Vector&, mfem::Vector&)> LTEVortexIC(mfem::real_t radius,
-								      mfem::real_t vel_inf,
-								      mfem::real_t beta,
-								      mfem::real_t rho_inf,
-								      mfem::real_t temp_inf)
+                                                                      mfem::real_t vel_inf,
+                                                                      mfem::real_t beta,
+                                                                      mfem::real_t rho_inf,
+                                                                      mfem::real_t temp_inf)
   {
     return [=](const mfem::Vector &x, mfem::Vector &y)
     {
@@ -48,7 +48,7 @@ namespace Prandtl
 
       // Gaussian temperature perturbation
       const mfem::real_t temp =
-	temp_inf - 0.5 * (vel_inf * beta) * (vel_inf * beta) / cp * exp_full;
+        temp_inf - 0.5 * (vel_inf * beta) * (vel_inf * beta) / cp * exp_full;
 
       // Safety clamp so the IC never goes nonphysical
       const mfem::real_t temp_safe = std::max(temp, 0.2 * temp_inf);
@@ -81,9 +81,9 @@ namespace Prandtl
 
   // LTE Blob initial condition
   std::function<void(const mfem::Vector&, mfem::Vector&)> LTEBlobIC(mfem::real_t radius,
-								    mfem::real_t T_inf,
-								    mfem::real_t T_blob,
-								    mfem::real_t P_inf)
+                                                                    mfem::real_t T_inf,
+                                                                    mfem::real_t T_blob,
+                                                                    mfem::real_t P_inf)
   {
     return [=](const mfem::Vector &x, mfem::Vector &y)
     {
@@ -276,19 +276,19 @@ namespace Prandtl
 
       // Register boundary conditions with functions.
       Prandtl::ConditionFactory::Instance().RegisterScalarFunctionBoundaryCondition0("LidDrivenCavityAdiaBCFunction",
-										     LidDrivenCavityAdiaBCFunction);
+                                                                                     LidDrivenCavityAdiaBCFunction);
       Prandtl::ConditionFactory::Instance().RegisterVectorFunctionBoundaryCondition0("LidDrivenCavityWallVelBCFunction",
-										     LidDrivenCavityWallVelBCFunction);
+                                                                                     LidDrivenCavityWallVelBCFunction);
       Prandtl::ConditionFactory::Instance().RegisterVectorFunctionBoundaryCondition2("LidDrivenCavityLidVelBCFunction",
-										     LidDrivenCavityLidVelBCFunction);
+                                                                                     LidDrivenCavityLidVelBCFunction);
 
       // Register boundary conditions with constant scalars/vectors.
       Prandtl::ConditionFactory::Instance().RegisterScalarBoundaryCondition("LidDrivenCavityAdiaBCScalar",
-									    LidDrivenCavityAdiaBCScalar);
+                                                                            LidDrivenCavityAdiaBCScalar);
       Prandtl::ConditionFactory::Instance().RegisterVectorBoundaryCondition("LidDrivenCavityWallVelBCVector",
-									    LidDrivenCavityWallVelBCVector);
+                                                                            LidDrivenCavityWallVelBCVector);
       Prandtl::ConditionFactory::Instance().RegisterVectorBoundaryCondition("LidDrivenCavityLidVelBCVector",
-									    LidDrivenCavityLidVelBCVector);
+                                                                            LidDrivenCavityLidVelBCVector);
 
     }
   };
@@ -305,18 +305,18 @@ namespace Prandtl
       mfem::real_t density, velocity_x, velocity_y, pressure, energy;
       if (x(0) <= 1.0)
         {
-	  density = 1.0;
-	  pressure = 1.0;
+          density = 1.0;
+          pressure = 1.0;
         }
       else if (x(0) <= 7.0 && x(1) <= 1.5)
         {
-	  density = 1.0;
-	  pressure = 0.1;
+          density = 1.0;
+          pressure = 0.1;
         }
       else
         {
-	  density = 0.125;
-	  pressure = 0.1;
+          density = 0.125;
+          pressure = 0.1;
         }
 
       velocity_x = 0.0;
@@ -344,8 +344,8 @@ namespace Prandtl
 
   // Isentropic Vortex initial condition
   std::function<void(const mfem::Vector&, mfem::Vector&)> IsentropicVortexIC(mfem::real_t radius, mfem::real_t Minf,
-									     mfem::real_t beta, mfem::real_t R_gas,
-									     mfem::real_t gamma)
+                                                                             mfem::real_t beta, mfem::real_t R_gas,
+                                                                             mfem::real_t gamma)
   {
     return [radius, Minf, beta, R_gas, gamma](const mfem::Vector &x, mfem::Vector &y)
     {
@@ -407,15 +407,15 @@ namespace Prandtl
       mfem::real_t density, velocity_x, velocity_y, pressure, energy;
       if (x(0) < 0.5)
         {
-	  density = 5.9970;
-	  velocity_x = 98.5914;
-	  pressure = 11666.5;
+          density = 5.9970;
+          velocity_x = 98.5914;
+          pressure = 11666.5;
         }
       else
         {
-	  density = 1.0;
-	  velocity_x = 0.0;
-	  pressure = 1.0;
+          density = 1.0;
+          velocity_x = 0.0;
+          pressure = 1.0;
         }
       velocity_y = 0.0;
       energy = pressure * gammaM1Inverse + density * 0.5 * (velocity_x * velocity_x + velocity_y * velocity_y);
@@ -440,7 +440,7 @@ namespace Prandtl
       Prandtl::ConditionFactory::Instance().RegisterInitialCondition1("BackwardFacingStepIC", BackwardFacingStepIC);
       // Register boundary condition.
       Prandtl::ConditionFactory::Instance().RegisterVectorBoundaryCondition("BackwardFacingStepLeftBCVector",
-									    BackwardFacingStepLeftBCVector);
+                                                                            BackwardFacingStepLeftBCVector);
     }
   };
   // Global static instance to ensure registration happens at startup.
@@ -455,17 +455,17 @@ namespace Prandtl
 
       if (x(0) < 1.0 / 6.0 + x(1) / std::sqrt(3))
         {
-	  y(0) = 8.0;
-	  y(1) = 8.0 * 7.144709581221619;
-	  y(2) = -8.0 * 4.125;
-	  y(3) = 116.5 * gammaM1Inverse  + 0.5 * y(0) * (7.144709581221619 * 7.144709581221619 + 4.125 * 4.125);
+          y(0) = 8.0;
+          y(1) = 8.0 * 7.144709581221619;
+          y(2) = -8.0 * 4.125;
+          y(3) = 116.5 * gammaM1Inverse  + 0.5 * y(0) * (7.144709581221619 * 7.144709581221619 + 4.125 * 4.125);
         }
       else
         {
-	  y(0) = 1.4;
-	  y(1) = 0.0;
-	  y(2) = 0.0;
-	  y(3) = 1.0 * gammaM1Inverse;
+          y(0) = 1.4;
+          y(1) = 0.0;
+          y(2) = 0.0;
+          y(3) = 1.0 * gammaM1Inverse;
         }
     };
   }
@@ -479,17 +479,17 @@ namespace Prandtl
 
       if (x(0) < 1.0 / 6.0 + (x(1) + 20.0 * t) / std::sqrt(3))
         {
-	  y(0) = 8.0;
-	  y(1) = 8.0 * 7.144709581221619;
-	  y(2) = -8.0 * 4.125;
-	  y(3) = 116.5 * gammaM1Inverse + 0.5 * y(0) * (7.144709581221619 * 7.144709581221619 + 4.125 * 4.125);
+          y(0) = 8.0;
+          y(1) = 8.0 * 7.144709581221619;
+          y(2) = -8.0 * 4.125;
+          y(3) = 116.5 * gammaM1Inverse + 0.5 * y(0) * (7.144709581221619 * 7.144709581221619 + 4.125 * 4.125);
         }
       else
         {
-	  y(0) = 1.4;
-	  y(1) = 0.0;
-	  y(2) = 0.0;
-	  y(3) = 1.0 * gammaM1Inverse;
+          y(0) = 1.4;
+          y(1) = 0.0;
+          y(2) = 0.0;
+          y(3) = 1.0 * gammaM1Inverse;
         }
     };
   }
@@ -508,9 +508,9 @@ namespace Prandtl
 
       // Register boundary conditions
       Prandtl::ConditionFactory::Instance().RegisterVectorBoundaryCondition("DoubleMachReflectionLeftBottom1BCVector",
-									    DoubleMachReflectionLeftBottom1BCVector);
+                                                                            DoubleMachReflectionLeftBottom1BCVector);
       Prandtl::ConditionFactory::Instance().RegisterVectorTDFunctionBoundaryCondition1("DoubleMachReflectionTopBCFunction",
-										       DoubleMachReflectionTopBCFunction);
+                                                                                       DoubleMachReflectionTopBCFunction);
     }
   };
 
@@ -600,11 +600,11 @@ namespace Prandtl
       Prandtl::ConditionFactory::Instance().RegisterInitialCondition0("NagashimaIC", NagashimaIC);
       // Register boundary condition.
       Prandtl::ConditionFactory::Instance().RegisterVectorBoundaryCondition("NagashimaInletBCVector",
-									    NagashimaInletBCVector);
+                                                                            NagashimaInletBCVector);
       Prandtl::ConditionFactory::Instance().RegisterVectorTDFunctionBoundaryCondition1("NagashimaRampingInletBC",
-										       NagashimaRampingInletBC);
+                                                                                       NagashimaRampingInletBC);
       Prandtl::ConditionFactory::Instance().RegisterScalarBoundaryCondition("NagashimaOutletPressure",
-									    NagashimaOutletPressure);
+                                                                            NagashimaOutletPressure);
 
     }
   };
@@ -657,7 +657,7 @@ namespace Prandtl
     {
       // Register initial condition.
       Prandtl::ConditionFactory::Instance().RegisterInitialCondition1("KelvinHelmholtzInstabilityIC",
-								      KelvinHelmholtzInstabilyIC);
+                                                                      KelvinHelmholtzInstabilyIC);
     }
   };
   // Global static instance to ensure registration happens at startup.
@@ -746,7 +746,7 @@ namespace Prandtl
       Prandtl::ConditionFactory::Instance().RegisterInitialCondition1("ForwardFacingStepIC", ForwardFacingStepIC);
       // Register boundary condition.
       Prandtl::ConditionFactory::Instance().RegisterVectorBoundaryCondition("ForwardFacingStepLeftBCVector",
-									    ForwardFacingStepLeftBCVector);
+                                                                            ForwardFacingStepLeftBCVector);
     }
   };
   // Global static instance to ensure registration happens at startup.
@@ -765,15 +765,15 @@ namespace Prandtl
 
       if (x(0) <= 0.1)
         {
-	  pressure = 1000.0;
+          pressure = 1000.0;
         }
       else if (x(0) <= 0.9)
         {
-	  pressure = 0.01;
+          pressure = 0.01;
         }
       else
         {
-	  pressure = 100.0;
+          pressure = 100.0;
         }
 
       energy = pressure / (gamma - 1.0) + density * 0.5 * (velocity_x * velocity_x);
@@ -791,7 +791,7 @@ namespace Prandtl
     {
       // Register initial condition.
       Prandtl::ConditionFactory::Instance().RegisterInitialCondition1("WoodwardColellaBlastWaveIC",
-								      WoodwardColellaBlastWaveIC);
+                                                                      WoodwardColellaBlastWaveIC);
     }
   };
   // Global static instance to ensure registration happens at startup.
@@ -807,15 +807,15 @@ namespace Prandtl
 
       if (x(0) < 0.5)
         {
-	  density = 1.0;
-	  velocity_x = -2.0;
-	  pressure = 0.4;
+          density = 1.0;
+          velocity_x = -2.0;
+          pressure = 0.4;
         }
       else
         {
-	  density = 1.0;
-	  velocity_x = 2.0;
-	  pressure = 0.4;
+          density = 1.0;
+          velocity_x = 2.0;
+          pressure = 0.4;
         }
 
       energy = pressure / (gamma - 1.0) + density * 0.5 * (velocity_x * velocity_x);
@@ -852,15 +852,15 @@ namespace Prandtl
 
       if (x(0) < 0.5)
         {
-	  density = 0.445;
-	  velocity_x = 0.698;
-	  pressure = 3.528;
+          density = 0.445;
+          velocity_x = 0.698;
+          pressure = 3.528;
         }
       else
         {
-	  density = 0.5;
-	  velocity_x = 0.0;
-	  pressure = 0.571;
+          density = 0.5;
+          velocity_x = 0.0;
+          pressure = 0.571;
         }
 
       energy = pressure / (gamma - 1.0) + density * 0.5 * (velocity_x * velocity_x);
@@ -897,15 +897,15 @@ namespace Prandtl
 
       if (x(0) < 0.5)
         {
-	  density = 1.0;
-	  velocity_x = 0.75;
-	  pressure = 1.0;
+          density = 1.0;
+          velocity_x = 0.75;
+          pressure = 1.0;
         }
       else
         {
-	  density = 0.125;
-	  velocity_x = 0.0;
-	  pressure = 0.1;
+          density = 0.125;
+          velocity_x = 0.0;
+          pressure = 0.1;
         }
 
       energy = pressure / (gamma - 1.0) + density * 0.5 * (velocity_x * velocity_x);
@@ -926,9 +926,9 @@ namespace Prandtl
 
       // Register boundary condition for left and right boundaries.
       Prandtl::ConditionFactory::Instance().RegisterVectorFunctionBoundaryCondition1("ModifiedSodShockTubeLeftBC",
-										     ModifiedSodShockTubeIC);
+                                                                                     ModifiedSodShockTubeIC);
       Prandtl::ConditionFactory::Instance().RegisterVectorFunctionBoundaryCondition1("ModifiedSodShockTubeRightBC",
-										     ModifiedSodShockTubeIC);
+                                                                                     ModifiedSodShockTubeIC);
     }
   };
   // Global static instance to ensure registration happens at startup.
@@ -944,15 +944,15 @@ namespace Prandtl
 
       if (x(0) < 0.5)
         {
-	  density = 5.99924;
-	  velocity_x = 19.5975;
-	  pressure = 460.894;
+          density = 5.99924;
+          velocity_x = 19.5975;
+          pressure = 460.894;
         }
       else
         {
-	  density = 5.99242;
-	  velocity_x = -6.19633 ;
-	  pressure = 46.0950;
+          density = 5.99242;
+          velocity_x = -6.19633 ;
+          pressure = 46.0950;
         }
 
       energy = pressure / (gamma - 1.0) + density * 0.5 * (velocity_x * velocity_x);
@@ -970,13 +970,13 @@ namespace Prandtl
     {
       // Register initial condition.
       Prandtl::ConditionFactory::Instance().RegisterInitialCondition1("WoodwardColellaBlastWaveCollisionIC",
-								      WoodwardColellaBlastWaveCollisionIC);
+                                                                      WoodwardColellaBlastWaveCollisionIC);
 
       // Register boundary condition for left and right boundaries.
       Prandtl::ConditionFactory::Instance().RegisterVectorFunctionBoundaryCondition1("WoodwardColellaBlastWaveCollisionLeftBC",
-										     WoodwardColellaBlastWaveCollisionIC);
+                                                                                     WoodwardColellaBlastWaveCollisionIC);
       Prandtl::ConditionFactory::Instance().RegisterVectorFunctionBoundaryCondition1("WoodwardColellaBlastWaveCollisionRightBC",
-										     WoodwardColellaBlastWaveCollisionIC);
+                                                                                     WoodwardColellaBlastWaveCollisionIC);
     }
   };
   // Global static instance to ensure registration happens at startup.
@@ -1058,7 +1058,7 @@ namespace Prandtl
 
       // Register exact solution.
       Prandtl::ConditionFactory::Instance().RegisterVectorTDFunctionBoundaryCondition1("AcousticWaveExactSolution",
-										       AcousticWaveExactSolution);
+                                                                                       AcousticWaveExactSolution);
     }
   };
   // Global static instance to ensure registration happens at startup.
@@ -1074,15 +1074,15 @@ namespace Prandtl
 
       if (x(0) < 1.0)
         {
-	  density = 3.857;
-	  velocity_x = 2.629;
-	  pressure = 10.333;
+          density = 3.857;
+          velocity_x = 2.629;
+          pressure = 10.333;
         }
       else
         {
-	  density = 1.0 + 0.2 * std::sin(5.0 * (x(0) - 5.0));
-	  velocity_x = 0.0;
-	  pressure = 1.0;
+          density = 1.0 + 0.2 * std::sin(5.0 * (x(0) - 5.0));
+          velocity_x = 0.0;
+          pressure = 1.0;
         }
 
       energy = pressure / (gamma - 1.0) + density * 0.5 * (velocity_x * velocity_x);
@@ -1118,15 +1118,15 @@ namespace Prandtl
 
       if (x(0) < 0.5)
         {
-	  density = 1.0;
-	  velocity_x = 0.0;
-	  pressure = 1000.0;
+          density = 1.0;
+          velocity_x = 0.0;
+          pressure = 1000.0;
         }
       else
         {
-	  density = 1.0;
-	  velocity_x = 0.0;
-	  pressure = 0.01;
+          density = 1.0;
+          velocity_x = 0.0;
+          pressure = 0.01;
         }
 
       energy = pressure / (gamma - 1.0) + density * 0.5 * (velocity_x * velocity_x);
@@ -1144,13 +1144,13 @@ namespace Prandtl
     {
       // Register initial condition.
       Prandtl::ConditionFactory::Instance().RegisterInitialCondition1("WoodwardColellaBlastWaveLeftIC",
-								      WoodwardColellaBlastWaveLeftIC);
+                                                                      WoodwardColellaBlastWaveLeftIC);
 
       // Register boundary condition for left and right boundaries.
       Prandtl::ConditionFactory::Instance().RegisterVectorFunctionBoundaryCondition1("WoodwardColellaBlastWaveLeftLeftBC",
-										     WoodwardColellaBlastWaveLeftIC);
+                                                                                     WoodwardColellaBlastWaveLeftIC);
       Prandtl::ConditionFactory::Instance().RegisterVectorFunctionBoundaryCondition1("WoodwardColellaBlastWaveLeftRightBC",
-										     WoodwardColellaBlastWaveLeftIC);
+                                                                                     WoodwardColellaBlastWaveLeftIC);
     }
   };
   // Global static instance to ensure registration happens at startup.
@@ -1167,15 +1167,15 @@ namespace Prandtl
 
       if (x(0) < 0.5)
         {
-	  density = 1.0;
-	  velocity_x = 0.0;
-	  pressure = 0.01;
+          density = 1.0;
+          velocity_x = 0.0;
+          pressure = 0.01;
         }
       else
         {
-	  density = 1.0;
-	  velocity_x = 0.0;
-	  pressure = 100.0;
+          density = 1.0;
+          velocity_x = 0.0;
+          pressure = 100.0;
         }
 
       energy = pressure / (gamma - 1.0) + density * 0.5 * (velocity_x * velocity_x);
@@ -1193,13 +1193,13 @@ namespace Prandtl
     {
       // Register initial condition.
       Prandtl::ConditionFactory::Instance().RegisterInitialCondition1("WoodwardColellaBlastWaveRightIC",
-								      WoodwardColellaBlastWaveRightIC);
+                                                                      WoodwardColellaBlastWaveRightIC);
 
       // Register boundary condition for left and right boundaries.
       Prandtl::ConditionFactory::Instance().RegisterVectorFunctionBoundaryCondition1("WoodwardColellaBlastWaveRightLeftBC",
-										     WoodwardColellaBlastWaveRightIC);
+                                                                                     WoodwardColellaBlastWaveRightIC);
       Prandtl::ConditionFactory::Instance().RegisterVectorFunctionBoundaryCondition1("WoodwardColellaBlastWaveRightRightBC",
-										     WoodwardColellaBlastWaveRightIC);
+                                                                                     WoodwardColellaBlastWaveRightIC);
     }
   };
   // Global static instance to ensure registration happens at startup.
@@ -1216,15 +1216,15 @@ namespace Prandtl
 
       if (x(0) < 0.5)
         {
-	  density = 1.0;
-	  velocity_x = 0.0;
-	  pressure = 1.0;
+          density = 1.0;
+          velocity_x = 0.0;
+          pressure = 1.0;
         }
       else
         {
-	  density = 0.125;
-	  velocity_x = 0.0;
-	  pressure = 0.1;
+          density = 0.125;
+          velocity_x = 0.0;
+          pressure = 0.1;
         }
 
       energy = pressure / (gamma - 1.0) + density * 0.5 * (velocity_x * velocity_x);
@@ -1261,15 +1261,15 @@ namespace Prandtl
 
       if (x(0) < 3.0)
         {
-	  y(0) = 1.0;
-	  y(1) = 0.0;
-	  y(2) = 0.1;
+          y(0) = 1.0;
+          y(1) = 0.0;
+          y(2) = 0.1;
         }
       else
         {
-	  y(0) = 1e-3;
-	  y(1) = 0.0;
-	  y(2) = 1e-9;
+          y(0) = 1e-3;
+          y(1) = 0.0;
+          y(2) = 1e-9;
         }
     };
   }

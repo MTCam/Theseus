@@ -2,7 +2,7 @@
 //
 // This file is part of Theseus.
 //
-// SPDX-License-Identifier: MIT
+// SPDX-License-Identifier: BSD-3-Clause
 #pragma once
 
 #include "Physics.hpp"
@@ -33,13 +33,13 @@ namespace Theseus
 
     MFEM_HOST_DEVICE
     LTEGasModel(const PhysicsConstants &phys_in, const StateLayout &L_in,
-		const LTETables &T_in, const EOSImpl &eos_in, const TransportImpl &tr_in)
+                const LTETables &T_in, const EOSImpl &eos_in, const TransportImpl &tr_in)
       : phys(phys_in), L(L_in), T(T_in), eos(eos_in), transport(tr_in)
     { };
 
     MFEM_HOST_DEVICE
     LTEGasModel(const PhysicsConstants &phys_in, const StateLayout &L_in,
-		const LTETables &T_in)
+                const LTETables &T_in)
       : phys(phys_in), L(L_in), T(T_in)
     { };
 
@@ -47,11 +47,11 @@ namespace Theseus
     MFEM_HOST_DEVICE LTEGasModel<EOSImpl, TransportImpl>  to_device(HostDataT &host_data) {
       LTEGasModel<EOSImpl, TransportImpl> retVal(phys, L, T, eos, transport);
       T.tables = {
-	host_data.lteTableData->lte_table.Read(),
-	host_data.lteTableData->inv_table.Read(),
-	host_data.lteTableData->rho_grid.Read(),
-	host_data.lteTableData->T_grid.Read(),
-	host_data.lteTableData->e_grid.Read()
+        host_data.lteTableData->lte_table.Read(),
+        host_data.lteTableData->inv_table.Read(),
+        host_data.lteTableData->rho_grid.Read(),
+        host_data.lteTableData->T_grid.Read(),
+        host_data.lteTableData->e_grid.Read()
       };
       return retVal;
     }

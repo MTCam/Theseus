@@ -2,7 +2,7 @@
 //
 // This file is part of Theseus.
 //
-// SPDX-License-Identifier: MIT
+// SPDX-License-Identifier: BSD-3-Clause
 #pragma once
 #include <chrono>
 #include <cstdio>
@@ -16,7 +16,7 @@ namespace Theseus
 #ifdef ENABLE_TIMERS
     explicit ScopedTimer(const char *name)
       : name_(name),
-	start_(clock::now()) {}
+        start_(clock::now()) {}
 
     ~ScopedTimer()
     {
@@ -34,20 +34,20 @@ namespace Theseus
 #endif
 #ifdef TIMER_OUTPUT_ALLRANKS
       if(nranks > 1 && rank > 0)
-	std::printf("[TIMER(%d)] %s : %.6f ms\n", rank, name_, local_ms);
+        std::printf("[TIMER(%d)] %s : %.6f ms\n", rank, name_, local_ms);
 #endif
       if(rank == 0 ){
-	std::printf("[TIMER(%d)] %s : %.6f ms\n", rank, name_, local_ms);
+        std::printf("[TIMER(%d)] %s : %.6f ms\n", rank, name_, local_ms);
 #ifdef TIMER_BARRIER
-	if(nranks > 1)
-	  std::printf("[TIMER(all)] %s : %.6f ms\n", name_, global_ms);
+        if(nranks > 1)
+          std::printf("[TIMER(all)] %s : %.6f ms\n", name_, global_ms);
 #endif
       }
     }
 #else
     explicit ScopedTimer(const char *name)
       : name_(name),
-	start_() {}
+        start_() {}
     ~ScopedTimer(){};
 #endif
   private:

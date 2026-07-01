@@ -2,7 +2,7 @@
 //
 // This file is part of Theseus.
 //
-// SPDX-License-Identifier: MIT
+// SPDX-License-Identifier: BSD-3-Clause
 
 namespace Theseus
 {
@@ -192,7 +192,7 @@ namespace Theseus
 
       for(int ep = 0;ep < ndof;ep++){
         mfem::real_t elstate[Theseus::MAXEQ];
-	Theseus::Kernels::el_gather_state(u_el, ndof, neq, ep, elstate);
+        Theseus::Kernels::el_gather_state(u_el, ndof, neq, ep, elstate);
         Theseus::PointStateView S{elstate};
 
         mfem::real_t rho = gas.density(S);

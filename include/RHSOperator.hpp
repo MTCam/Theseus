@@ -2,7 +2,7 @@
 //
 // This file is part of Theseus.
 //
-// SPDX-License-Identifier: MIT
+// SPDX-License-Identifier: BSD-3-Clause
 #pragma once
 
 #include "DGSEMIntegrator.hpp"
@@ -136,19 +136,19 @@ namespace Theseus
     std::shared_ptr<const GasModelInterface> gas_interface;
   public:
     RHSOperator(std::shared_ptr<mfem::ParFiniteElementSpace> vfes_,
-		std::shared_ptr<mfem::ParFiniteElementSpace> fes0_,
-		std::shared_ptr<mfem::ParMesh> pmesh_,
-		std::shared_ptr<mfem::ParGridFunction> eta_,
-		std::shared_ptr<mfem::ParGridFunction> alpha_,
-		std::shared_ptr<Prandtl::Indicator> indicator_,
-		std::shared_ptr<const Gas> gas_,
-		const std::string &gasModelName_,
-		const std::string &numFluxName_,
-		const std::string &flowModelName_,
-		std::shared_ptr<mfem::ParGridFunction> r_gf_ = nullptr,
-		const mfem::real_t alpha_max = 0.5, const mfem::real_t alpha_min = 0.001)
+                std::shared_ptr<mfem::ParFiniteElementSpace> fes0_,
+                std::shared_ptr<mfem::ParMesh> pmesh_,
+                std::shared_ptr<mfem::ParGridFunction> eta_,
+                std::shared_ptr<mfem::ParGridFunction> alpha_,
+                std::shared_ptr<Prandtl::Indicator> indicator_,
+                std::shared_ptr<const Gas> gas_,
+                const std::string &gasModelName_,
+                const std::string &numFluxName_,
+                const std::string &flowModelName_,
+                std::shared_ptr<mfem::ParGridFunction> r_gf_ = nullptr,
+                const mfem::real_t alpha_max = 0.5, const mfem::real_t alpha_min = 0.001)
     : RHSOperatorBase(vfes_, fes0_, pmesh_, eta_, alpha_,
-		      indicator_, r_gf_, alpha_max, alpha_min),
+                      indicator_, r_gf_, alpha_max, alpha_min),
       gasModelName(gasModelName_), numFluxName(numFluxName_),
       flowModelName(flowModelName_), gas(std::move(gas_)), 
       gas_interface(std::make_shared<Theseus::GasModelInterfaceT<Gas>>(gas))

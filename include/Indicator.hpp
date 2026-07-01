@@ -2,7 +2,7 @@
 //
 // This file is part of Theseus.
 //
-// SPDX-License-Identifier: MIT
+// SPDX-License-Identifier: BSD-3-Clause
 #pragma once
 
 #include "mfem.hpp"
@@ -23,8 +23,8 @@ namespace Prandtl
     mfem::Vector state;
   public:
     Indicator(std::shared_ptr<mfem::ParFiniteElementSpace> vfes,
-	      std::shared_ptr<mfem::ParFiniteElementSpace> fes0,
-	      std::shared_ptr<mfem::ParGridFunction> eta);
+              std::shared_ptr<mfem::ParFiniteElementSpace> fes0,
+              std::shared_ptr<mfem::ParGridFunction> eta);
     virtual void CheckIndicatorSmoothness(const mfem::Vector &indicator) = 0;
     virtual ~Indicator() = default;
   };

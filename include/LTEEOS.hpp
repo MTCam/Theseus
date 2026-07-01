@@ -2,7 +2,7 @@
 //
 // This file is part of Theseus.
 //
-// SPDX-License-Identifier: MIT
+// SPDX-License-Identifier: BSD-3-Clause
 #pragma once
 
 #include <cmath>
@@ -25,7 +25,7 @@ namespace Theseus
     template<typename StateView>
     MFEM_HOST_DEVICE
     inline mfem::real_t R_gas(const PhysicsConstants &phys, const StateLayout &L,
-			      const StateView &S, const LTETables &lteTables) const
+                              const StateView &S, const LTETables &lteTables) const
     {
       return property_lookup(lteTables.L.R_eq_idx, phys, L, S, lteTables);
     }
@@ -33,7 +33,7 @@ namespace Theseus
     template<typename StateView>
     MFEM_HOST_DEVICE
     inline mfem::real_t density(const PhysicsConstants &phys, const StateLayout &L,
-				const StateView &S, const LTETables &lteTables) const
+                                const StateView &S, const LTETables &lteTables) const
     {
       return S.mass(L); // this is "rho" (mass density)
     }
@@ -41,7 +41,7 @@ namespace Theseus
     template<typename StateView>
     MFEM_HOST_DEVICE
     inline mfem::real_t rhoE(const PhysicsConstants &phys, const StateLayout &L,
-			     const StateView &S) const
+                             const StateView &S) const
     {
       return S.energy(L);
     }
@@ -49,7 +49,7 @@ namespace Theseus
     template<typename StateView>
     MFEM_HOST_DEVICE
     inline mfem::real_t momentum_sq(const PhysicsConstants &phys, const StateLayout &L,
-				    const StateView &S) const
+                                    const StateView &S) const
     {
       const int dim = L.dim;   // uses state layout
       mfem::real_t m2 = 0;
@@ -64,7 +64,7 @@ namespace Theseus
     template<typename StateView>
     MFEM_HOST_DEVICE
     inline mfem::real_t kinetic_energy_density(const PhysicsConstants &phys, const StateLayout &L,
-					       const StateView &S, const LTETables &lteTables) const
+                                               const StateView &S, const LTETables &lteTables) const
     {
       // 0.5 * rho * |u|^2 = 0.5 * |rho*u|^2 / rho
       const mfem::real_t rho  = density(phys, L, S, lteTables);
@@ -75,7 +75,7 @@ namespace Theseus
     template<typename StateView>
     MFEM_HOST_DEVICE
     inline mfem::real_t internal_energy_density(const PhysicsConstants &phys, const StateLayout &L,
-						const StateView &S, const LTETables &lteTables) const
+                                                const StateView &S, const LTETables &lteTables) const
     {
       // rho*e = rho*E - 0.5*rho*|u|^2
       return rhoE(phys, L, S) - kinetic_energy_density(phys, L, S, lteTables);
@@ -84,17 +84,17 @@ namespace Theseus
     template<typename StateView>
     MFEM_HOST_DEVICE
     inline mfem::real_t internal_energy_from_pressure(const PhysicsConstants &phys, const StateLayout &L,
-						      const StateView &S, mfem::real_t pressure_target,
-						      const LTETables &lteTables) const
+                                                      const StateView &S, mfem::real_t pressure_target,
+                                                      const LTETables &lteTables) const
     {
       mfem::real_t U[Theseus::MAXEQ];
       PointStateViewRW S_dummy(U);
       S_dummy.set_mass(L, S.mass(L));
 
       for(int idim = 0; idim < L.dim; idim++)
-	{
-	  S_dummy.set_momentum(L, idim, S.momentum(L, idim));
-	}
+        {
+          S_dummy.set_momentum(L, idim, S.momentum(L, idim));
+        }
       S_dummy.set_energy(L, S.energy(L));
 
       // Secant Method to find internal energy that matches a target pressure
@@ -108,35 +108,35 @@ namespace Theseus
       mfem::real_t f_old, f_new, ie_update;
 
       for(int iter = 0; iter < 100; iter++)
-	{
-	  S_dummy.set_energy(L, ie_old+ke);
-	  f_old = property_lookup(lteTables.L.P_idx, phys, L, S_dummy, lteTables) - pressure_target;
+        {
+          S_dummy.set_energy(L, ie_old+ke);
+          f_old = property_lookup(lteTables.L.P_idx, phys, L, S_dummy, lteTables) - pressure_target;
 
-	  S_dummy.set_energy(L, ie_new+ke);
-	  f_new = property_lookup(lteTables.L.P_idx, phys, L, S_dummy, lteTables) - pressure_target;
+          S_dummy.set_energy(L, ie_new+ke);
+          f_new = property_lookup(lteTables.L.P_idx, phys, L, S_dummy, lteTables) - pressure_target;
 
-	  denom = f_new - f_old;
+          denom = f_new - f_old;
 
-	  if( Theseus::Kernels::rabs(f_new) < tol || Theseus::Kernels::rabs(denom) < 1e-12)
-	    {
-	      break;
-	    }
+          if( Theseus::Kernels::rabs(f_new) < tol || Theseus::Kernels::rabs(denom) < 1e-12)
+            {
+              break;
+            }
 
-	  ie_update = ie_new - f_new * (ie_new - ie_old) / denom;
+          ie_update = ie_new - f_new * (ie_new - ie_old) / denom;
 
-	  ie_old = ie_new;
-	  ie_new = ie_update;
-	  if(iter == 99){
-	    MFEM_ABORT("Secant method did not converge in internal_energy_from_pressure");
-	  }
-	}
+          ie_old = ie_new;
+          ie_new = ie_update;
+          if(iter == 99){
+            MFEM_ABORT("Secant method did not converge in internal_energy_from_pressure");
+          }
+        }
       return ie_new;
     }
 
     template<typename StateView>
     MFEM_HOST_DEVICE
     inline mfem::real_t specific_internal_energy(const PhysicsConstants &phys, const StateLayout &L,
-						 const StateView &S, const LTETables &lteTables) const
+                                                 const StateView &S, const LTETables &lteTables) const
     {
       // e = (rho*e) / rho
       const mfem::real_t rho  = density(phys, L, S, lteTables);
@@ -149,7 +149,7 @@ namespace Theseus
     template<typename StateView>
     MFEM_HOST_DEVICE
     inline mfem::real_t pressure(const PhysicsConstants &phys, const StateLayout &L,
-				 const StateView &S, const LTETables &lteTables) const
+                                 const StateView &S, const LTETables &lteTables) const
     {
       return property_lookup(lteTables.L.P_idx, phys, L, S, lteTables);
     }
@@ -157,7 +157,7 @@ namespace Theseus
     template<typename StateView>
     MFEM_HOST_DEVICE
     inline mfem::real_t gamma(const PhysicsConstants &phys, const StateLayout &L,
-			      const StateView &S, const LTETables &lteTables) const
+                              const StateView &S, const LTETables &lteTables) const
     {
       return property_lookup(lteTables.L.gamma_eq_idx, phys, L, S, lteTables);
     }
@@ -165,7 +165,7 @@ namespace Theseus
     template<typename StateView>
     MFEM_HOST_DEVICE
     inline mfem::real_t temperature(const PhysicsConstants &phys, const StateLayout &L,
-				    const StateView &S, const LTETables &lteTables) const
+                                    const StateView &S, const LTETables &lteTables) const
     {
       return temp_from_internal_energy(phys, L, S, lteTables);
     }
@@ -175,7 +175,7 @@ namespace Theseus
     inline void grad_temperature(const PhysicsConstants &phys, const StateLayout  &L,
                                  const StateView &S, const mfem::real_t *grad_rho,
                                  const mfem::real_t *grad_p, mfem::real_t *grad_t,
-				 const LTETables &lteTables) const
+                                 const LTETables &lteTables) const
     {
       for(int i = 0; i < L.dim; i++){
         grad_t[i] = grad_p[i]; // CL NOTE : we store T_xi in contiguous gradient array for LTE (W=[rho, u, v, w , T])
@@ -185,7 +185,7 @@ namespace Theseus
     template<typename StateView>
     MFEM_HOST_DEVICE
     inline mfem::real_t sound_speed(const PhysicsConstants &phys, const StateLayout &L,
-				    const StateView &S, const LTETables &lteTables) const
+                                    const StateView &S, const LTETables &lteTables) const
     {
       return property_lookup(lteTables.L.c_idx, phys, L, S, lteTables);
     }
@@ -193,7 +193,7 @@ namespace Theseus
     template<typename StateView>
     MFEM_HOST_DEVICE
     inline mfem::real_t cv(const PhysicsConstants &phys, const StateLayout &L,
-			   const StateView &S, const LTETables &lteTables) const
+                           const StateView &S, const LTETables &lteTables) const
     {
       return property_lookup(lteTables.L.cv_idx, phys, L, S, lteTables);
     }
@@ -201,7 +201,7 @@ namespace Theseus
     template<typename StateView>
     MFEM_HOST_DEVICE
     inline mfem::real_t cp(const PhysicsConstants &phys, const StateLayout &L,
-			   const StateView &S, const LTETables &lteTables) const
+                           const StateView &S, const LTETables &lteTables) const
     {
       return property_lookup(lteTables.L.cp_idx, phys, L, S, lteTables);
     }
@@ -209,7 +209,7 @@ namespace Theseus
     template<typename StateView>
     MFEM_HOST_DEVICE
     inline mfem::real_t entropy(const PhysicsConstants &phys, const StateLayout &L,
-				const StateView &S, const LTETables &lteTables) const
+                                const StateView &S, const LTETables &lteTables) const
     {
       MFEM_ABORT("CL ALERT : Dont have it in plato tables and also not needed");
       return 0.0;
@@ -246,9 +246,9 @@ namespace Theseus
       dPrim.set_mass(L, 0.0); // CL NOTE : won't be using density gradient (if W = [rho, u, v, w , T])
       int dim = L.dim;
       for(int i=0; i < dim; i++)
-	{
-	  dPrim.set_momentum(L, i, dE.momentum(L, i)*T + T*S.velocity(L, i)*dE.energy(L));
-	}
+        {
+          dPrim.set_momentum(L, i, dE.momentum(L, i)*T + T*S.velocity(L, i)*dE.energy(L));
+        }
       dPrim.set_energy(L, T*T*dE.energy(L));
     }
 
@@ -272,10 +272,10 @@ namespace Theseus
 
       cons.set_mass(L, rho);
       for(int d = 0; d < dim; d++)
-	{
-	  cons.set_momentum(L, d, rho*prim.velocity(L, d));
-	  v2 += prim.velocity(L,d)*prim.velocity(L,d);
-	}
+        {
+          cons.set_momentum(L, d, rho*prim.velocity(L, d));
+          v2 += prim.velocity(L,d)*prim.velocity(L,d);
+        }
       mfem::real_t rhoe = internal_energy_from_pressure(phys, L, cons, prim.pressure(L), lteTables);
       cons.set_energy(L, rhoe + 0.5 * rho * v2);
     }
@@ -301,8 +301,8 @@ namespace Theseus
     template<typename StateView>
     MFEM_HOST_DEVICE
     inline mfem::real_t property_lookup(int property_idx, const PhysicsConstants &phys,
-					const StateLayout &L, const StateView &S,
-					const LTETables &lteTables) const
+                                        const StateLayout &L, const StateView &S,
+                                        const LTETables &lteTables) const
     {
       mfem::real_t T = temp_from_internal_energy(phys, L, S, lteTables);
       return biinterp_lte_table(property_idx, phys, L, S, T, lteTables);
@@ -311,7 +311,7 @@ namespace Theseus
     template<typename StateView>
     MFEM_HOST_DEVICE
     inline mfem::real_t temp_from_internal_energy(const PhysicsConstants &phys, const StateLayout &L,
-						  const StateView &S, const LTETables &lteTables) const
+                                                  const StateView &S, const LTETables &lteTables) const
     {
       mfem::real_t rho = density(phys, L, S, lteTables);
       mfem::real_t e = specific_internal_energy(phys, L, S, lteTables);
@@ -323,26 +323,26 @@ namespace Theseus
       int iter = 0;
 
       while(res > tol)
-	{
-	  mfem::real_t e_guess  = biinterp_lte_table(lteTables.L.e_idx, phys, L, S, T, lteTables);
-	  mfem::real_t cv = biinterp_lte_table(lteTables.L.cv_idx, phys, L, S, T, lteTables);
+        {
+          mfem::real_t e_guess  = biinterp_lte_table(lteTables.L.e_idx, phys, L, S, T, lteTables);
+          mfem::real_t cv = biinterp_lte_table(lteTables.L.cv_idx, phys, L, S, T, lteTables);
 
-	  res = (e - e_guess)/cv;
+          res = (e - e_guess)/cv;
 
-	  T = T + res;
-	  res = Theseus::Kernels::rabs(res)/T;
+          T = T + res;
+          res = Theseus::Kernels::rabs(res)/T;
 
-	  iter++;
-	  if(iter > 100)
-	    {
+          iter++;
+          if(iter > 100)
+            {
 #ifdef __CUDA_ARCH__
-	      printf("Newton method did not converge in temp_from_internal_energy");
-	      asm("trap;");
+              printf("Newton method did not converge in temp_from_internal_energy");
+              asm("trap;");
 #else
-	      MFEM_ABORT("Newton method did not converge in temp_from_internal_energy");
+              MFEM_ABORT("Newton method did not converge in temp_from_internal_energy");
 #endif
-	    }
-	}
+            }
+        }
 
       return T;
     }
@@ -350,7 +350,7 @@ namespace Theseus
     template<typename StateView>
     MFEM_HOST_DEVICE
     inline mfem::real_t biinterp_inverse_table(const PhysicsConstants &phys, const StateLayout &L,
-					       const StateView &S, const LTETables &lteTables) const
+                                               const StateView &S, const LTETables &lteTables) const
     {
       /*
        * Q01--------Q11
@@ -370,25 +370,25 @@ namespace Theseus
       int u_x = l_x + 1  , u_y = l_y + 1;
 
       if(l_x < 0 || u_x >= lteTables.L.nx || l_y < 0 || u_y >= lteTables.L.ny)
-	{
+        {
 #ifdef __CUDA_ARCH__
-	  printf(" CL ALERT : Out of bounds in LTE table lookup! \n");
-	  printf("l_x : %d l_y : %d \n", l_x, l_y);
-	  printf("rho : %e < %e < %e \n", lteTables.tables.rho_grid[0],
-		 rho, lteTables.tables.rho_grid[lteTables.L.nx-1]);
-	  printf("e : %e < %e < %e \n", lteTables.tables.e_grid[0],
-		 e, lteTables.tables.e_grid[lteTables.L.ny-1]);
-	  asm("trap;");
+          printf(" CL ALERT : Out of bounds in LTE table lookup! \n");
+          printf("l_x : %d l_y : %d \n", l_x, l_y);
+          printf("rho : %e < %e < %e \n", lteTables.tables.rho_grid[0],
+                 rho, lteTables.tables.rho_grid[lteTables.L.nx-1]);
+          printf("e : %e < %e < %e \n", lteTables.tables.e_grid[0],
+                 e, lteTables.tables.e_grid[lteTables.L.ny-1]);
+          asm("trap;");
 #else
-	  std::cout << " CL ALERT : Out of bounds in LTE table lookup! "<<std::endl;
-	  std::cout << "l_x : " << l_x << "l_y : " << l_y << std::endl;
-	  std::cout << "rho : " << lteTables.tables.rho_grid[0] << " < " << rho
-		    << " < " << lteTables.tables.rho_grid[lteTables.L.nx-1] << std::endl;
-	  std::cout << "e : " << lteTables.tables.e_grid[0] << " < "
-		    << e << " < " << lteTables.tables.e_grid[lteTables.L.ny-1] << std::endl;
-	  std::exit(1);
+          std::cout << " CL ALERT : Out of bounds in LTE table lookup! "<<std::endl;
+          std::cout << "l_x : " << l_x << "l_y : " << l_y << std::endl;
+          std::cout << "rho : " << lteTables.tables.rho_grid[0] << " < " << rho
+                    << " < " << lteTables.tables.rho_grid[lteTables.L.nx-1] << std::endl;
+          std::cout << "e : " << lteTables.tables.e_grid[0] << " < "
+                    << e << " < " << lteTables.tables.e_grid[lteTables.L.ny-1] << std::endl;
+          std::exit(1);
 #endif
-	}
+        }
 
       // Get the lower and upper x and y coordinates of the cell
       mfem::real_t rho_l  = lteTables.tables.rho_grid[l_x] , rho_u = lteTables.tables.rho_grid[u_x];
@@ -411,15 +411,15 @@ namespace Theseus
 
 
       return Q00 * ((1 - wx) * (1 - wy)) + Q01 * ((1 - wx) * wy) +
-	Q10 * (wx * (1 - wy)) + Q11 * (wx * wy);
+        Q10 * (wx * (1 - wy)) + Q11 * (wx * wy);
     }
 
     template<typename StateView>
     MFEM_HOST_DEVICE
     inline mfem::real_t biinterp_lte_table(int property_idx, const PhysicsConstants &phys,
-					   const StateLayout &L, const StateView &S,
-					   const mfem::real_t T,
-					   const LTETables &lteTables) const
+                                           const StateLayout &L, const StateView &S,
+                                           const mfem::real_t T,
+                                           const LTETables &lteTables) const
     {
       /*
        * Q01--------Q11
@@ -455,7 +455,7 @@ namespace Theseus
 
 
       return Q00 * ((1 - wx) * (1 - wy)) + Q01 * ((1 - wx) * wy) +
-	Q10 * (wx * (1 - wy)) + Q11 * (wx * wy);
+        Q10 * (wx * (1 - wy)) + Q11 * (wx * wy);
     }
   };
 }

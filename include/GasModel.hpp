@@ -2,7 +2,7 @@
 //
 // This file is part of Theseus.
 //
-// SPDX-License-Identifier: MIT
+// SPDX-License-Identifier: BSD-3-Clause
 #pragma once
 
 #include "Physics.hpp"
@@ -239,7 +239,7 @@ namespace Theseus
       MFEM_ABORT("GasModelInterface::density called on base class.");
     }
     virtual mfem::real_t velocity(const Theseus::DofStateView &S,
-				  int d) const{
+                                  int d) const{
       MFEM_ABORT("GasModelInterface::velocity called on base class.");
     }
     virtual mfem::real_t pressure(const Theseus::DofStateView &S) const {

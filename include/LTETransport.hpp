@@ -1,3 +1,8 @@
+// Copyright (c) 2025-2026 Board of Trustees of the University of Illinois
+//
+// This file is part of Theseus.
+//
+// SPDX-License-Identifier: BSD-3-Clause
 #pragma once
 
 #include <cmath>
@@ -17,9 +22,9 @@ namespace Theseus
     template<typename EOSType, typename StateViewType>
     MFEM_HOST_DEVICE
     inline mfem::real_t viscosity(const Theseus::PhysicsConstants &phys,
-				  const Theseus::StateLayout &L,
-				  const EOSType &eos, const StateViewType &S,
-				  const LTETables &lteTables) const
+                                  const Theseus::StateLayout &L,
+                                  const EOSType &eos, const StateViewType &S,
+                                  const LTETables &lteTables) const
     {
 #ifdef SUTHERLAND
       // mu0 * T0pTs / (T + Ts) * (T / T0) * std::sqrt(T / T0);
@@ -35,9 +40,9 @@ namespace Theseus
     template<typename EOSType, typename StateViewType>
     MFEM_HOST_DEVICE
     inline mfem::real_t bulk_viscosity(const Theseus::PhysicsConstants &phys,
-				       const Theseus::StateLayout &L,
-				       const EOSType &eos, const StateViewType &S,
-				       const LTETables &lteTables) const
+                                       const Theseus::StateLayout &L,
+                                       const EOSType &eos, const StateViewType &S,
+                                       const LTETables &lteTables) const
     {
       return phys.mu_bulk;
     }
@@ -46,9 +51,9 @@ namespace Theseus
     template<typename EOSType, typename StateViewType>
     MFEM_HOST_DEVICE
     inline mfem::real_t thermal_conductivity(const Theseus::PhysicsConstants &phys,
-					     const Theseus::StateLayout &L,
-					     const EOSType &eos, const StateViewType &S,
-					     const LTETables &lteTables) const
+                                             const Theseus::StateLayout &L,
+                                             const EOSType &eos, const StateViewType &S,
+                                             const LTETables &lteTables) const
     {
       return eos.property_lookup(lteTables.L.lambda_idx, phys, L, S, lteTables);
     }
